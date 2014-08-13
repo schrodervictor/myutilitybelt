@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+#checking dependencies
+command -v git   >/dev/null 2>&1 || { echo >&2 "git is not installed. Aborting.";   exit 1; }
+command -v zsh   >/dev/null 2>&1 || { echo >&2 "zsh is not installed. Aborting.";   exit 1; }
+command -v tmux  >/dev/null 2>&1 || { echo >&2 "tmux is not installed. Aborting.";  exit 1; }
+command -v vim   >/dev/null 2>&1 || { echo >&2 "vim is not installed. Aborting.";   exit 1; }
+command -v ctags >/dev/null 2>&1 || { echo >&2 "ctags is not installed. Aborting."; exit 1; }
+
+#backing up previous configuration files
+[ -h ~/.zshrc ]         && mv ~/.zshrc{,-bkp}
+[ -h ~/.vim ]           && mv ~/.vim{,-bkp}
+[ -h ~/.vimrc ]         && mv ~/.vimrc{,-bkp}
+[ -h ~/.tmux.conf ]     && mv ~/.tmux.conf{,-bkp}
+[ -h ~/.gitconfig ]     && mv ~/.gitconfig{,-bkp}
+
+#creating symlinks
+ln -s .myutilitybelt/zsh/zshrc ~/.zshrc
+ln -s .myutilitybelt/vim ~/.vim
+ln -s .myutilitybelt/vim/vimrc ~/.vimrc
+ln -s .myutilitybelt/tmux/tmux.conf ~/.tmux.conf
+ln -s .myutilitybelt/git/gitconfig ~/.gitconfig
+
+#installing vim plugings
+vim -N -u ~/.myutilitybelt/vim/vundle.vim -c ':BundleCleanInstallQuit'
+
+echo "\n\033[00;32m -- installation of myutilitybelt is complete ;D --\033[00m \n"
+exit 0

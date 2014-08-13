@@ -1,0 +1,25 @@
+[user]
+    name = thiagoalessio
+    email = thiagoalessio@me.com
+
+[core]
+    editor = vim
+
+[diff]
+    tool = vimdiff
+
+[difftool]
+    prompt = false
+
+[color]
+    diff   = auto
+    status = auto
+    branch = auto
+    ui     = auto
+
+[alias]
+    st = status
+    ci = commit
+    br = branch
+    co = checkout
+    df = diff
