@@ -6,5 +6,5 @@
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:git*' formats " on %{$fg[blue]%}%b%{$reset_color%}"
-zstyle ':vcs_info:git*' actionformats " on %{$fg[blue]%}%b %{$fg[red]%}(%a)%{$reset_color%}"
+zstyle ':vcs_info:git*' formats " on %{$fg[cyan]%}%b%{$reset_color%}"
+zstyle ':vcs_info:git*' actionformats " on %{$fg[cyan]%}%b %{$fg[red]%}(%a)%{$reset_color%}"

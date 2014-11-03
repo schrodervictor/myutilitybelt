@@ -10,10 +10,9 @@ precmd() {
     vcs_info
 
     PROMPT=$'\n'
-    PROMPT+="%{$fg_bold[green]%}%U%D %*%u%{$reset_color%}"
-    PROMPT+=$'\n'
+    PROMPT+="%{$fg[green]%}%D %*%{$reset_color%} "
     PROMPT+="%{$fg[magenta]%}%n%{$reset_color%}"
-    PROMPT+=' at '
+    PROMPT+='@'
     PROMPT+="%{$fg[yellow]%}%m%{$reset_color%}"
     PROMPT+=' in '
     PROMPT+="%{$fg[green]%}%~%{$reset_color%}"
