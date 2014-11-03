@@ -2,8 +2,9 @@
 
 Personal settings for the lovely tools that compose my workflow.
 
-**Note:** If you think the mappings are weird, that is because of 
+**Note:** Yeah, some mappings are weird, but that is because of 
 [Dvorak](http://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard).
+(not actually using it right now)
 
 ## Dependencies
 
@@ -15,4 +16,4 @@ Personal settings for the lovely tools that compose my workflow.
 
 ## Installation
 
-    $ git clone --recursive https://github.com/thiagoalessio/myutilitybelt.git ~/.myutilitybelt && sh ~/.myutilitybelt/install
+    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git ~/.myutilitybelt && sh ~/.myutilitybelt/install
