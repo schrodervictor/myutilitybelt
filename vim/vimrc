@@ -10,7 +10,7 @@ source ~/.vim/vundle.vim
 
 "key mappings
 source ~/.vim/mappings.vim
-source ~/.vim/dvorak.vim
+"""source ~/.vim/dvorak.vim
 
 "file browsing
 source ~/.vim/ctrlp.vim
