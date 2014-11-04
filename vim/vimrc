@@ -5,32 +5,32 @@
 " @author thiagoalessio <thiagoalessio@me.com>
 
 "general settings
-source ~/.vim/general.vim
-source ~/.vim/vundle.vim
+source ~/.myutilitybelt/vim/general.vim
+"source ~/.vim/vundle.vim
 
 "key mappings
-source ~/.vim/mappings.vim
+"source ~/.vim/mappings.vim
 """source ~/.vim/dvorak.vim
 
 "file browsing
-source ~/.vim/ctrlp.vim
-source ~/.vim/nerdtree.vim
+"source ~/.vim/ctrlp.vim
+"source ~/.vim/nerdtree.vim
 
 "code editing
-source ~/.vim/easymotion.vim
-source ~/.vim/folding.vim
-source ~/.vim/indentation.vim
-source ~/.vim/syntastic.vim
-source ~/.vim/tabular.vim
-source ~/.vim/undotree.vim
+"source ~/.vim/easymotion.vim
+"source ~/.vim/folding.vim
+"source ~/.vim/indentation.vim
+"source ~/.vim/syntastic.vim
+"source ~/.vim/tabular.vim
+"source ~/.vim/undotree.vim
 
 "integration
-source ~/.vim/vimux.vim
+"source ~/.vim/vimux.vim
 
 "vim interface
-source ~/.vim/interface.vim
-source ~/.vim/search.vim
+"source ~/.vim/interface.vim
+"source ~/.vim/search.vim
 
 "visual/fancy stuff
-source ~/.vim/airline.vim
-source ~/.vim/colors.vim
+"source ~/.vim/airline.vim
+"source ~/.vim/colors.vim
