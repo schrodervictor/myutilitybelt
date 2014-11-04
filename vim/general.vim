@@ -8,6 +8,11 @@
 " nocompatible is needed to some cool vim stuff
 set nocompatible
 
+" === MODELINE ===
+" disable modeline, security reasons
+" see: http://lists.alioth.debian.org/pipermail/pkg-vim-maintainers/2007-June/004020.html
+set nomodeline
+
 " === BACKUP SETTINGS ===
 " turn backup ON
 set backup
