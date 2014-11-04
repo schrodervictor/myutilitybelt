@@ -20,6 +20,9 @@ set backup
 " the double // prevents filename collisions
 " the last slash will expand to the full path
 " with the slashes replaced by %
+" OBS: It's a known-bug that backupdir is not supporting
+" the correct double slash filename expansion
+" see: https://code.google.com/p/vim/issues/detail?id=179
 set backupdir=~/.vim/backup//
 
 " === SWAP FILES ===
@@ -32,6 +35,8 @@ set swapfile
 set directory=~/.vim/swap//
 
 " === UNDO FILES ===
+" turn undofiles ON
+set undofile
 " set a centralized undo directory (forever UNDO steps!)
 " the double // prevents filename collisions
 " the last slash will expand to the full path
