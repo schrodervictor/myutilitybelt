@@ -19,7 +19,7 @@ source ~/.myutilitybelt/vim/general.vim
 "code editing
 "source ~/.vim/easymotion.vim
 "source ~/.vim/folding.vim
-"source ~/.vim/indentation.vim
+source ~/.myutilitybelt/vim/indentation.vim
 "source ~/.vim/syntastic.vim
 "source ~/.vim/tabular.vim
 "source ~/.vim/undotree.vim
