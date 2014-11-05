@@ -4,9 +4,12 @@
 " @subpackage vim
 " @author thiagoalessio <thiagoalessio@me.com>
 
-"general settings
+" general settings
 source ~/.myutilitybelt/vim/general.vim
-"source ~/.vim/vundle.vim
+
+" using Vundle to manage plugins
+" see: https://github.com/gmarik/Vundle.vim
+source ~/.myutilitybelt/vim/vundle.vim
 
 "key mappings
 "source ~/.vim/mappings.vim
