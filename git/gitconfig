@@ -23,3 +23,7 @@
     br = branch
     co = checkout
     df = diff
+    assume = update-index --assume-unchanged
+    unassume = update-index --no-assume-unchanged
+    assumed = !git ls-files -v | grep "^[[:lower:]]"
+    remember = !git update-index --really-refresh
