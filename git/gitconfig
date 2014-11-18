@@ -1,29 +1,78 @@
 [user]
+
+    # User info. If you are cloning this repo, please change this to your own information
     name = Victor Schröder
     email = schrodervictor@gmail.com
 
 [core]
+
+    # Lets use Vim as our main editor for Git
     editor = vim
 
+    # Sometimes we can have someone programing in Windows (or trying to...)
+    # We know the mess it can be with the line CRLF and LF...
+    autocrlf = input
+
 [diff]
+
+    # Vimdiff will be the default tool for diffs
     tool = vimdiff
 
 [difftool]
+
+    # This is need to Vimdiff not prompt for saving everytime
     prompt = false
 
 [color]
+
+    # The world needs colors!
     diff   = auto
     status = auto
     branch = auto
     ui     = auto
 
+[push]
+
+    # Setting the push behavior to affect only the current branch
+    default = simple
+
+[pull]
+
+    # When working with other people, it's a good idea to have this setting
+    # to prevent unnecessary conflicts and keep everything in order
+    rebase = true
+
+[merge]
+
+    # Turning off the fast-forward feature
+    # We want to have an explicit commit message on merge
+    ff = false
+
+[rerere]
+
+    # ReReRe stands for 'Reuse Recorded Resolution'
+    # This means, on repetitive conflicts, Git will reuse the same
+    # strategy we last used last time for a given conflict
+    enabled = true
+
 [alias]
+
+    # some usual aliases
     st = status
     ci = commit
     br = branch
     co = checkout
     df = diff
+
+    # this gives us a compact status message
+    s = status -s
+
+    # This is for telling Git to temporally ignore a changed file. I use those a lot!
     assume = update-index --assume-unchanged
     unassume = update-index --no-assume-unchanged
+
+    # With this we can have a list of the files we assumed to be unchanged
     assumed = !git ls-files -v | grep "^[[:lower:]]"
+
+    # And this can revert all assume-unchanged operations
     remember = !git update-index --really-refresh
