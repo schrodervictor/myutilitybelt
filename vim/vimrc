@@ -18,7 +18,7 @@ source ~/.myutilitybelt/vim/mappings.vim
 
 "file browsing
 "source ~/.vim/ctrlp.vim
-"source ~/.vim/nerdtree.vim
+source ~/.myutilitybelt/vim/nerdtree.vim
 
 "code editing
 "source ~/.vim/easymotion.vim

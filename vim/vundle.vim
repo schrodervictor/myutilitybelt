@@ -17,7 +17,7 @@ call vundle#begin('~/.vim/bundle/')
 Plugin 'gmarik/Vundle.vim'
 
 "file browsing
-"Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdtree'
 "Plugin 'kien/ctrlp.vim'
 "Plugin 'majutsushi/tagbar'
 
