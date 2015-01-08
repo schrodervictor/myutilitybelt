@@ -37,4 +37,4 @@ source ~/.myutilitybelt/vim/interface.vim
 
 "visual/fancy stuff
 "source ~/.vim/airline.vim
-"source ~/.vim/colors.vim
+source ~/.myutilitybelt/vim/colors.vim
