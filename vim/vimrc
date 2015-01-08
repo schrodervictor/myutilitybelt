@@ -31,7 +31,7 @@ source ~/.myutilitybelt/vim/indentation.vim
 "source ~/.vim/vimux.vim
 
 "vim interface
-"source ~/.vim/interface.vim
+source ~/.myutilitybelt/vim/interface.vim
 "source ~/.vim/search.vim
 
 "visual/fancy stuff
