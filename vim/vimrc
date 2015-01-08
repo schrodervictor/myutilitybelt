@@ -36,5 +36,5 @@ source ~/.myutilitybelt/vim/interface.vim
 "source ~/.vim/search.vim
 
 "visual/fancy stuff
-"source ~/.vim/airline.vim
+source ~/.myutilitybelt/vim/airline.vim
 source ~/.myutilitybelt/vim/colors.vim

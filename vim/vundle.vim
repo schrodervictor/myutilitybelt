@@ -38,8 +38,8 @@ Plugin 'scrooloose/nerdtree'
 "Plugin 'int3/vim-extradite'
 
 "visual/fancy stuff
-"Plugin 'bling/vim-airline'
-"Plugin 'nanotech/jellybeans.vim'
+Plugin 'bling/vim-airline'
+Plugin 'nanotech/jellybeans.vim'
 "Plugin 'Yggdroot/indentLine'
 
 "integration with external programs
