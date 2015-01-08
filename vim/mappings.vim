@@ -22,3 +22,10 @@ inoremap <c-h> <esc> :w<cr>
 
 " sudo saving. Who never opened a protected file without sudo?
 command! W w !sudo tee %
+
+" disables key arrows, because life is too easy
+" in normal, visual+select and operator-pending modes
+noremap <Left> <nop>
+noremap <Right> <nop>
+noremap <Up> <nop>
+noremap <Down> <nop>
