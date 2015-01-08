@@ -3,6 +3,7 @@
 " @package myutilitybelt
 " @subpackage vim
 " @author thiagoalessio <thiagoalessio@me.com>
+" @author Victor Schröder <schrodervictor@gmail.com>
 
 " general settings
 source ~/.myutilitybelt/vim/general.vim
@@ -12,7 +13,7 @@ source ~/.myutilitybelt/vim/general.vim
 source ~/.myutilitybelt/vim/vundle.vim
 
 "key mappings
-"source ~/.vim/mappings.vim
+source ~/.myutilitybelt/vim/mappings.vim
 """source ~/.vim/dvorak.vim
 
 "file browsing
