@@ -5,4 +5,3 @@
 # @author thiagoalessio <thiagoalessio@me.com>
 
 export EDITOR=vim
-export PATH=/usr/local/bin:$PATH
