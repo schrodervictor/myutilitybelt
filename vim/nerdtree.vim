@@ -8,3 +8,7 @@ nmap <c-n> :NERDTreeToggle<cr>
 imap <c-n> <esc> :NERDTreeToggle<cr>
 nmap <c-l> :NERDTreeFind<cr>
 imap <c-l> <esc> :NERDTreeFind<cr>
+
+let g:NERDTreeMapJumpPrevSibling = 't'
+let g:NERDTreeMapJumpNextSibling = 'n'
+let g:NERDTreeMapOpenInTab = 'z'
