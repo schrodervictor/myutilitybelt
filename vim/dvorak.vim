@@ -3,15 +3,24 @@
 " @package myutilitybelt
 " @subpackage vim
 " @author thiagoalessio <thiagoalessio@me.com>
+" @author Victor Schröder <schrodervictor@gmail.com>
 
-noremap d h
-noremap h j
-noremap t k
-noremap n l
-noremap s :
-noremap S :
+" Remapping the basic movement keys to Dvorak's right 'home' position
+noremap h h
+noremap t j
+noremap n k
+noremap s l
+
+" Remapping the semicolon=colon to avoid pressing shift
+noremap ; :
+
+" Useful remaps to navigate to the beginning and the end of the line
 noremap - $
 noremap _ ^
-noremap j d
-noremap l nzz
-noremap L Nzz
+
+" Since we are going to use the 'n' key to navigate, we need another key
+" for the search results.
+" Let's take the chance and append 'zz' to the command, so the search result
+" will be centralized on the window.
+noremap k nzz
+noremap K Nzz

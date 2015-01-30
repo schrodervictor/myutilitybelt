@@ -14,7 +14,6 @@ source ~/.myutilitybelt/vim/vundle.vim
 
 "key mappings
 source ~/.myutilitybelt/vim/mappings.vim
-"""source ~/.vim/dvorak.vim
 
 "file browsing
 "source ~/.vim/ctrlp.vim
@@ -38,3 +37,4 @@ source ~/.myutilitybelt/vim/interface.vim
 "visual/fancy stuff
 source ~/.myutilitybelt/vim/airline.vim
 source ~/.myutilitybelt/vim/colors.vim
+source ~/.myutilitybelt/vim/dvorak.vim
