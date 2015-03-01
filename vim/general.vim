@@ -70,3 +70,8 @@ set nohidden
 " === NETRW HISTORY ===
 " disables netrw history
 let g:netrw_dirhistmax = 0
+
+
+" === AUTOCOMMANDS ===
+" I never use modula2 files, but a lot of markdown with .md extension
+autocmd BufRead,BufNewFile *.md set filetype=markdown
