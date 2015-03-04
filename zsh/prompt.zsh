@@ -2,6 +2,7 @@
 #
 # @package myutilitybelt
 # @subpackage zsh
+# @author Victor Schröder <schrodervictor@gmail.com>
 # @author thiagoalessio <thiagoalessio@me.com>
 
 set prompt_subst
