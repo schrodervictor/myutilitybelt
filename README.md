@@ -4,7 +4,7 @@ Personal settings for the lovely tools that compose my workflow.
 
 **Note:** Yeah, some mappings are weird, but that is because of 
 [Dvorak](http://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard).
-(not actually using it right now)
+(you should try it too!!)
 
 ## Dependencies
 
