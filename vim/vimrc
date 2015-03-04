@@ -32,7 +32,7 @@ source ~/.myutilitybelt/vim/indentation.vim
 
 "vim interface
 source ~/.myutilitybelt/vim/interface.vim
-"source ~/.vim/search.vim
+source ~/.myutilitybelt/vim/search.vim
 
 "visual/fancy stuff
 source ~/.myutilitybelt/vim/airline.vim
