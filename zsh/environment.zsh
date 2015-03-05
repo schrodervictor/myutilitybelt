@@ -8,6 +8,7 @@
 # Defines vim as the default editor
 export EDITOR=vim
 
+
 # EC2-cli required variables
 
 # Java is a dependency
@@ -25,3 +26,9 @@ read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(awk -F, 'NR==2 { print $2" "$3 }' $A
 # Export the variables
 export AWS_ACCESS_KEY
 export AWS_SECRET_KEY
+
+
+# Nix is a nice functional package manager, let's use it
+if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
+    . $HOME/.nix-profile/etc/profile.d/nix.sh;
+fi
