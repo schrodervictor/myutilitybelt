@@ -33,6 +33,10 @@ Plugin 'scrooloose/nerdtree'
 "Plugin 'tpope/vim-surround'
 "Plugin 'scrooloose/syntastic'
 
+"Syntax highlight
+"Plugin 'Glench/Vim-Jinja2-Syntax'
+Plugin 'file:///home/vschroder/Projects/Vim-Jinja2-Syntax'
+
 "version control integration
 "Plugin 'tpope/vim-fugitive'
 "Plugin 'int3/vim-extradite'
