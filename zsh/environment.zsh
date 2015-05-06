@@ -57,7 +57,9 @@ if [[ ! -z "$JAVA_HOME" ]]; then
 fi
 
 # Appending the EC2-cli binaries folder to the path
-export EC2_HOME="/usr/local/ec2/ec2-api-tools-1.7.3.0"
+# These next lines assume that the current version of the EC2 tool
+# has a symbolic link at /usr/local/share/ec2/current
+export EC2_HOME="/usr/local/share/ec2/current"
 export PATH=$PATH:$EC2_HOME/bin
 
 # AWS credentials variables for EC2-cli
