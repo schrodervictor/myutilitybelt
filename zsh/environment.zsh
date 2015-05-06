@@ -71,6 +71,8 @@ read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(awk -F, 'NR==2 { print $2" "$3 }' $A
 export AWS_ACCESS_KEY
 export AWS_SECRET_KEY
 
+# Define the default AWS region to Frankfurt (eu-central-1)
+export EC2_URL=https://ec2.eu-central-1.amazonaws.com
 
 # Nix is a nice functional package manager, let's use it
 if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
