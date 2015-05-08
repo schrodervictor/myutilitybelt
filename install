@@ -16,8 +16,7 @@ command -v ctags >/dev/null 2>&1 || { echo >&2 "ctags is not installed. Aborting
 
 #creating symlinks
 ln -s ~/.myutilitybelt/zsh/zshrc ~/.zshrc
-#ln -s ~/.myutilitybelt/vim ~/.vim
-# TODO Create the directories backup, swap and undo in ~/.vim
+ln -s ~/.myutilitybelt/vim ~/.vim
 ln -s ~/.myutilitybelt/vim/vimrc ~/.vimrc
 ln -s ~/.myutilitybelt/tmux/tmux.conf ~/.tmux.conf
 ln -s ~/.myutilitybelt/git/gitconfig ~/.gitconfig
