@@ -24,7 +24,7 @@ ln -s ~/.myutilitybelt/tmux/tmux.conf ~/.tmux.conf
 ln -s ~/.myutilitybelt/git/gitconfig ~/.gitconfig
 echo "done.\n"
 
-echo -n "Installing Vim plugings..."
+echo -n "Installing Vim plugins..."
 vim -N -u ~/.myutilitybelt/vim/vundle.vim -c ':BundleCleanInstallQuit'
 echo "done.\n"
 
