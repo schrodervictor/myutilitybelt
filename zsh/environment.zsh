@@ -78,3 +78,14 @@ export EC2_URL=https://ec2.eu-central-1.amazonaws.com
 if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
     . $HOME/.nix-profile/etc/profile.d/nix.sh;
 fi
+
+etc_git_control() {
+
+    if [[ -z "$1" ]]; then
+        sudo git -C /etc status
+    else
+        sudo git -C /etc add .
+        sudo git -C /etc commit -m "$1"
+    fi
+
+}
