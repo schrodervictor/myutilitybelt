@@ -6,7 +6,8 @@
 " @author Victor Schröder <schrodervictor@gmail.com>
 
 " Remapping the basic movement keys to Dvorak's right 'home' position
-noremap h h
+" We don't need to remap the h key
+" noremap h h
 noremap t j
 noremap n k
 noremap s l
