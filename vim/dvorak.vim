@@ -28,3 +28,10 @@ noremap _ ^
 " will be centralized on the window.
 noremap k nzz
 noremap K Nzz
+
+" This mapping is the Dvorak version of the famous jj jk mappings
+" which saves a lot of visits to the Esc key to return to normal mode
+" Here I opt for three keystrokes because tt and nn are normal in written
+" language
+inoremap ttt <Esc>jj
+inoremap nnn <Esc>kk
