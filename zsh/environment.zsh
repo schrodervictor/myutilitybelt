@@ -82,8 +82,10 @@ fi
 etc_git_control() {
 
     if [[ -z "$1" ]]; then
+        echo '[/etc changes report]'
         sudo git -C /etc status
     else
+        echo '[/etc commit report]'
         sudo git -C /etc add .
         sudo git -C /etc commit -m "$1"
     fi
