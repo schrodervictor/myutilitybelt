@@ -12,4 +12,4 @@ source ~/.myutilitybelt/zsh/history.zsh
 source ~/.myutilitybelt/zsh/prompt.zsh
 source ~/.myutilitybelt/zsh/tmux.zsh
 source ~/.myutilitybelt/zsh/vcs.zsh
-source ~/.myutilitybelt/zsh/vi-mode.zsh
+source ~/.myutilitybelt/zsh/emacs-mode.zsh
