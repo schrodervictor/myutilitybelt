@@ -38,3 +38,10 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 " And here a fast command to source it again
 " sv = (s)ource (v)imrc
 nnoremap <leader>sv :source $MYVIMRC<cr>
+
+" A better way to cycle between buffers
+noremap <leader>n :bnext<cr>
+noremap <leader>t :bprevious<cr>
+
+" Faster way to delete a buffer
+noremap <leader>bd :bdelete<cr>
