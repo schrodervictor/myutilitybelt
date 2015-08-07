@@ -33,7 +33,7 @@ noremap <Down> <nop>
 " Sometimes you just remember something and wnat to add it fast
 " the following command will open this file quickly
 " ev = (e)dit (v)imrc
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>ev :tabedit $MYVIMRC<cr>
 
 " And here a fast command to source it again
 " sv = (s)ource (v)imrc
