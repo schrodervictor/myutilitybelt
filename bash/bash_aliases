@@ -2,3 +2,6 @@
 alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
+
+# Force tmux to assume the terminal supports 256 colours
+alias tmux='tmux -2'
