@@ -9,6 +9,8 @@ command -v ctags >/dev/null 2>&1 || { echo >&2 "ctags is not installed. Aborting
 echo "passed.\n"
 
 echo -n "Backing up previous configuration files..."
+[ -h ~/.bashrc ]        && mv ~/.bashrc ~/.bashrc-bkp
+[ -h ~/.bash_aliases ]  && mv ~/.bash_aliases ~/.bash_aliases-bkp
 [ -h ~/.zshrc ]         && mv ~/.zshrc ~/.zshrc-bkp
 [ -h ~/.vim ]           && mv ~/.vim ~/.vim-bkp
 [ -h ~/.vimrc ]         && mv ~/.vimrc ~/.vimrc-bkp
@@ -17,6 +19,8 @@ echo -n "Backing up previous configuration files..."
 echo "done.\n"
 
 echo -n "Creating the symlinks..."
+ln -s ~/.myutilitybelt/bash/bashrc ~/.bashrc
+ln -s ~/.myutilitybelt/bash/bash_aliases ~/.bash_aliases
 ln -s ~/.myutilitybelt/zsh/zshrc ~/.zshrc
 ln -s ~/.myutilitybelt/vim ~/.vim
 ln -s ~/.myutilitybelt/vim/vimrc ~/.vimrc
