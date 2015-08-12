@@ -56,23 +56,37 @@ if [[ ! -z "$JAVA_HOME" ]]; then
     find_and_export_java_home
 fi
 
-# Appending the EC2-cli binaries folder to the path
-# These next lines assume that the current version of the EC2 tool
-# has a symbolic link at /usr/local/share/ec2/current
-export EC2_HOME="/usr/local/share/ec2/current"
-export PATH=$PATH:$EC2_HOME/bin
+aws-set-ec2-credentials-from-csv-file() {
 
-# AWS credentials variables for EC2-cli
-# Define where the aws csv credentials file is located
-AWS_CREDENTIALS_CSV=$HOME/.aws/credentials.csv
-# Read the credentials from the file
-read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(awk -F, 'NR==2 { print $2" "$3 }' $AWS_CREDENTIALS_CSV)
-# Export the variables
-export AWS_ACCESS_KEY
-export AWS_SECRET_KEY
+    local DEFAULT_CSV="$HOME/.aws/credentials.csv"
 
-# Define the default AWS region to Frankfurt (eu-central-1)
-export EC2_URL=https://ec2.eu-central-1.amazonaws.com
+    if [[ -z "$1" && -f "$DEFAULT_CSV" ]]; then
+        # AWS credentials variables for EC2-cli
+        # Define where the aws csv credentials file is located
+        AWS_CREDENTIALS_CSV="$DEFAULT_CSV"
+    elif [[ -f "$1" ]]; then
+        AWS_CREDENTIALS_CSV="$1"
+    else
+        echo "CSV file not fount!"
+        exit 1
+    fi
+
+    # Appending the EC2-cli binaries folder to the path
+    # These next lines assume that the current version of the EC2 tool
+    # has a symbolic link at /usr/local/share/ec2/current
+    export EC2_HOME="/usr/local/share/ec2/current"
+    export PATH=$PATH:$EC2_HOME/bin
+
+    # Read the credentials from the file
+    read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(awk -F, 'NR==2 { print $2" "$3 }' $AWS_CREDENTIALS_CSV)
+    # Export the variables
+    export AWS_ACCESS_KEY
+    export AWS_SECRET_KEY
+
+    # Define the default AWS region to Frankfurt (eu-central-1)
+    export EC2_URL=https://ec2.eu-central-1.amazonaws.com
+
+}
 
 # Nix is a nice functional package manager, let's use it
 if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
