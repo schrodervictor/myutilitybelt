@@ -6,7 +6,7 @@
 
 aws-profile() {
 
-    if aws-profile-exists "$1"; then
+    if _aws-profile-exists "$1"; then
 
         aws-clean-environment
 
@@ -14,7 +14,7 @@ aws-profile() {
         export AWS_PROFILE="$1"
 
         # ec2 cli
-        read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(aws-get-access-and-secret-key "$1")
+        read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(_aws-get-access-and-secret-key "$1")
         export AWS_ACCESS_KEY
         export AWS_SECRET_KEY
 
@@ -27,11 +27,11 @@ aws-profile() {
 
         # ec2 cli
         local AWS_REGION
-        AWS_REGION=$(aws-get-ec2-url-for-profile "$1")
+        AWS_REGION=$(_aws-get-ec2-url-for-profile "$1")
         EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
         export EC2_URL
 
-    elif aws-region-exists "$2"; then
+    elif _aws-region-exists "$2"; then
 
         # aws cli and boto
         AWS_DEFAULT_REGION="$2"
@@ -67,7 +67,7 @@ aws-clean-environment() {
 
 }
 
-aws-profile-exists() {
+_aws-profile-exists() {
 
     local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
 
@@ -79,7 +79,7 @@ aws-profile-exists() {
     return $?
 }
 
-aws-get-access-and-secret-key() {
+_aws-get-access-and-secret-key() {
 
     local ACCESS_KEY
     local SECRET_KEY
@@ -107,7 +107,7 @@ aws-get-access-and-secret-key() {
     echo "$ACCESS_KEY" "$SECRET_KEY"
 }
 
-aws-get-ec2-url-for-profile() {
+_aws-get-ec2-url-for-profile() {
 
     if [[ -z "$1" ]]; then
         echo 'No profile informed to search for a region'
@@ -131,7 +131,7 @@ aws-get-ec2-url-for-profile() {
 
 }
 
-aws-region-exists() {
+_aws-region-exists() {
 
     if [[ -z "$1" ]]; then
         echo "No region was informed with the command"
