@@ -106,3 +106,6 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+# Don't worry, it's bash compatible
+source "$HOME/.myutilitybelt/aws/profile-manager.zsh"

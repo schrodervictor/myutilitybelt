@@ -13,3 +13,5 @@ source ~/.myutilitybelt/zsh/prompt.zsh
 source ~/.myutilitybelt/zsh/tmux.zsh
 source ~/.myutilitybelt/zsh/vcs.zsh
 source ~/.myutilitybelt/zsh/emacs-mode.zsh
+
+source ~/.myutilitybelt/aws/profile-manager.zsh
