@@ -109,3 +109,8 @@ fi
 
 # Don't worry, it's bash compatible
 source "$HOME/.myutilitybelt/aws/profile-manager.zsh"
+
+# Source our customized bash completion for AWS
+if [ -f ~/.myutilitybelt/aws/aws-bash-completion.bash ]; then
+    . ~/.myutilitybelt/aws/aws-bash-completion.bash
+fi
