@@ -79,6 +79,13 @@ _aws-profile-exists() {
     return $?
 }
 
+_aws-get-all-profiles() {
+
+    local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
+
+    awk '/\[.+\]/ { gsub(/[\[|\]]/, ""); print };' "$AWS_CREDENTIALS_FILE"
+}
+
 _aws-get-access-and-secret-key() {
 
     local ACCESS_KEY
@@ -138,7 +145,7 @@ _aws-region-exists() {
         return 1
     fi
 
-    local AWS_REGIONS='ap-northeast-1 ap-southeast-1 ap-southeast-2 eu-central-1 eu-west-1 sa-east-1 us-east-1 us-west-1 us-west-2'
+    local AWS_REGIONS=$(_aws-get-all-regions)
 
     if [[ " $AWS_REGIONS " =~ " $1 " ]]; then
         return 0
@@ -147,4 +154,8 @@ _aws-region-exists() {
         return 1
     fi
 
+}
+
+_aws-get-all-regions() {
+    echo 'ap-northeast-1 ap-southeast-1 ap-southeast-2 eu-central-1 eu-west-1 sa-east-1 us-east-1 us-west-1 us-west-2'
 }
