@@ -6,6 +6,11 @@
 
 aws-profile() {
 
+    if [[ -z "$1" ]]; then
+        _aws-output-profile-info-in-use
+        return 0
+    fi
+
     if _aws-profile-exists "$1"; then
 
         aws-clean-environment
@@ -192,4 +197,14 @@ _aws-region-exists() {
 
 _aws-get-all-regions() {
     echo 'ap-northeast-1 ap-southeast-1 ap-southeast-2 eu-central-1 eu-west-1 sa-east-1 us-east-1 us-west-1 us-west-2'
+}
+
+_aws-output-profile-info-in-use() {
+
+    echo "You are currently using:"
+    echo "[$AWS_PROFILE] as the default profile for AWS cli, EC2 cli and Boto"
+    echo "[$AWS_DEFAULT_REGION] as the default region for AWS cli and Boto"
+    echo "[$EC2_URL] as the endpoit for EC2 cli"
+    echo "\nTo show help info use aws-profile help, --help or -h"
+    return 0
 }
