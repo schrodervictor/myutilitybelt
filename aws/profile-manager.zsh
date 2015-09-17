@@ -6,6 +6,8 @@
 
 aws-profile() {
 
+    echo "\nAWS profile manager by Victor Schröder - 2015\n"
+
     if [[ -z "$1" ]]; then
         _aws-output-profile-info-in-use
         return 0
