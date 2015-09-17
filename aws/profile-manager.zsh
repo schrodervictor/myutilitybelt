@@ -191,11 +191,11 @@ _aws-get-ec2-url-for-profile() {
 _aws-region-exists() {
 
     if [[ -z "$1" ]]; then
-        echo "No region was informed with the command"
         return 1
     fi
 
-    local AWS_REGIONS=$(_aws-get-all-regions)
+    local AWS_REGIONS
+    AWS_REGIONS=$(_aws-get-all-regions)
 
     if [[ " $AWS_REGIONS " =~ " $1 " ]]; then
         return 0
