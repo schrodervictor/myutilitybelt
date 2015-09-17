@@ -1,4 +1,11 @@
 _aws-profile() {
+
+    _aws-file-exists "$HOME/.aws/credentials"
+
+    if [[ $? -ne 0 ]]; then
+        return 1
+    fi
+
     local CUR PROFILES REGIONS
 
     PROFILES=( $(_aws-get-all-profiles) )
