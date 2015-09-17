@@ -24,20 +24,20 @@ aws-profile() {
 
         # aws cli and boto
         export AWS_PROFILE="$1"
-        echo "[$AWS_PROFILE] Successfully exported AWS profile"
+        echo "    [$AWS_PROFILE] Successfully exported AWS profile"
 
         # ec2 cli
         read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(_aws-get-access-and-secret-key "$1")
         if [[ ! -z "$AWS_ACCESS_KEY" ]] && [[ ! -z "$AWS_SECRET_KEY" ]]; then
             export AWS_ACCESS_KEY
             export AWS_SECRET_KEY
-            echo "[$AWS_PROFILE] Successfully exported access and secret keys"
+            echo "    [$AWS_PROFILE] Successfully exported access and secret keys"
         else
-            echo "[$AWS_PROFILE] ERROR: Access and/or secret keys not found!"
+            echo "    [$AWS_PROFILE] ERROR: Access and/or secret keys not found!"
         fi
 
     else
-        echo "[$1] ERROR: AWS profile not found!!"
+        echo "    [$1] ERROR: AWS profile not found!!"
         return 1
     fi
 
@@ -50,9 +50,9 @@ aws-profile() {
         if [[ ! -z "$AWS_REGION" ]]; then
             EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
             export EC2_URL
-            echo "[$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
+            echo "    [$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
         else
-            echo "[$AWS_PROFILE] ERROR: Default AWS region not found!!"
+            echo "    [$AWS_PROFILE] ERROR: Default AWS region not found!!"
         fi
 
     elif _aws-region-exists "$2"; then
@@ -64,11 +64,11 @@ aws-profile() {
         # ec2 cli
         EC2_URL="https://ec2.${2}.amazonaws.com"
         export EC2_URL
-        echo "[$AWS_PROFILE] Successfully exported required AWS region ($2)"
+        echo "    [$AWS_PROFILE] Successfully exported required AWS region ($2)"
 
     else
-        echo "[$AWS_PROFILE] ERROR: AWS region not found!!"
-        echo "[$AWS_PROFILE] (but your credentials variables were exported)"
+        echo "    [$AWS_PROFILE] ERROR: AWS region not found!!"
+        echo "    [$AWS_PROFILE] (but your credentials variables were exported)"
         return 1
     fi
 
@@ -208,23 +208,23 @@ _aws-get-all-regions() {
 
 _aws-output-profile-info-in-use() {
 
-    echo "You are currently using:"
-    echo "[$AWS_PROFILE] as the default profile for AWS cli, EC2 cli and Boto"
-    echo "[$AWS_DEFAULT_REGION] as the default region for AWS cli and Boto"
-    echo "[$EC2_URL] as the endpoit for EC2 cli"
+    echo "    You are currently using:"
+    echo "    [$AWS_PROFILE] as the default profile for AWS cli, EC2 cli, Boto and Ansible"
+    echo "    [$AWS_DEFAULT_REGION] as the default region for AWS cli, Boto and Ansible"
+    echo "    [$EC2_URL] as the endpoit for EC2 cli"
     echo "\nTo show help info use aws-profile help, --help or -h"
     return 0
 }
 
 _aws-output-help() {
 
-    echo "Usage:\n"
-    echo "help, --help, -h    Shows this help info"
-    echo "First argument      the profile name to set as default for the current session"
-    echo "Second argument     the AWS region to set as default for the current session"
-    echo "                    (optional, if not provided will try to set the region from"
-    echo "                    your config file)"
-    echo "Without arguments   shows the current settings"
+    echo "    Usage:\n"
+    echo "        help, --help, -h    Shows this help info"
+    echo "        First argument      the profile name to set as default for the current session"
+    echo "        Second argument     the AWS region to set as default for the current session"
+    echo "                            (optional, if not provided will try to set the region from"
+    echo "                            your config file)"
+    echo "        Without arguments   shows the current settings"
     return 0
 
 }
