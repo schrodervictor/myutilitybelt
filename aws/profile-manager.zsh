@@ -11,6 +11,11 @@ aws-profile() {
         return 0
     fi
 
+    if [[ "help" -eq "$1" ]] || [[ "--help" -eq "$1" ]] || [[ "-h" -eq "$1" ]]; then
+        _aws-output-help
+        return 0
+    fi
+
     if _aws-profile-exists "$1"; then
 
         aws-clean-environment
@@ -207,4 +212,17 @@ _aws-output-profile-info-in-use() {
     echo "[$EC2_URL] as the endpoit for EC2 cli"
     echo "\nTo show help info use aws-profile help, --help or -h"
     return 0
+}
+
+_aws-output-help() {
+
+    echo "Usage:\n"
+    echo "help, --help, -h    Shows this help info"
+    echo "First argument      the profile name to set as default for the current session"
+    echo "Second argument     the AWS region to set as default for the current session"
+    echo "                    (optional, if not provided will try to set the region from"
+    echo "                    your config file)"
+    echo "Without arguments   shows the current settings"
+    return 0
+
 }
