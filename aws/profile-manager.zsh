@@ -135,6 +135,13 @@ _aws-get-ec2-url-for-profile() {
     fi
 
     local AWS_CONFIG_FILE="$HOME/.aws/config"
+
+    _aws-file-exists "$AWS_CONFIG_FILE"
+
+    if [[ $? -ne 0 ]]; then
+        return 1
+    fi
+
     local AWS_PROFILE_SECTION
     local LINE
 
