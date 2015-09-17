@@ -15,7 +15,7 @@ aws-profile() {
         return 0
     fi
 
-    if [[ "help" -eq "$1" ]] || [[ "--help" -eq "$1" ]] || [[ "-h" -eq "$1" ]]; then
+    if [[ " help --help -h " =~ " $1 " ]]; then
         _aws-output-help
         return 0
     fi
