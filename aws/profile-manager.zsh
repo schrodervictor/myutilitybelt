@@ -12,14 +12,20 @@ aws-profile() {
 
         # aws cli and boto
         export AWS_PROFILE="$1"
+        echo "[$AWS_PROFILE] Successfully exported AWS profile"
 
         # ec2 cli
         read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(_aws-get-access-and-secret-key "$1")
-        export AWS_ACCESS_KEY
-        export AWS_SECRET_KEY
+        if [[ ! -z "$AWS_ACCESS_KEY" ]] && [[ ! -z "$AWS_SECRET_KEY" ]]; then
+            export AWS_ACCESS_KEY
+            export AWS_SECRET_KEY
+            echo "[$AWS_PROFILE] Successfully exported access and secret keys"
+        else
+            echo "[$AWS_PROFILE] ERROR: Access and/or secret keys not found!"
+        fi
 
     else
-        echo "AWS profile not found!!"
+        echo "[$1] ERROR: AWS profile not found!!"
         return 1
     fi
 
@@ -28,8 +34,14 @@ aws-profile() {
         # ec2 cli
         local AWS_REGION
         AWS_REGION=$(_aws-get-ec2-url-for-profile "$1")
-        EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
-        export EC2_URL
+
+        if [[ ! -z "$AWS_REGION" ]]; then
+            EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
+            export EC2_URL
+            echo "[$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
+        else
+            echo "[$AWS_PROFILE] ERROR: Default AWS region not found!!"
+        fi
 
     elif _aws-region-exists "$2"; then
 
@@ -40,9 +52,11 @@ aws-profile() {
         # ec2 cli
         EC2_URL="https://ec2.${2}.amazonaws.com"
         export EC2_URL
+        echo "[$AWS_PROFILE] Successfully exported required AWS region ($2)"
 
     else
-        echo "AWS region not found!!\n(but your credentials variables were exported)"
+        echo "[$AWS_PROFILE] ERROR: AWS region not found!!"
+        echo "[$AWS_PROFILE] (but your credentials variables were exported)"
         return 1
     fi
 
