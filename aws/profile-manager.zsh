@@ -67,16 +67,29 @@ aws-clean-environment() {
 
 }
 
+_aws-file-exists() {
+
+    if [[ ! -f "$1" ]] || [[ -L "$1" ]]; then
+        return 1
+    else
+        return 0
+    fi
+
+}
+
 _aws-profile-exists() {
 
     local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
 
-    local REGEX="^\[$1\]$"
-    #CREDENTIALS=$(grep '^\[[-_[:alnum:]]*\]$' $AWS_CREDENTIALS_FILE)
+    if _aws-file-exists "$AWS_CREDENTIALS_FILE"; then
 
-    grep --quiet "$REGEX" "$AWS_CREDENTIALS_FILE"
+        local REGEX="^\[$1\]$"
+        grep --quiet "$REGEX" "$AWS_CREDENTIALS_FILE"
+        return $?
 
-    return $?
+    else
+        return 1
+    fi
 }
 
 _aws-get-all-profiles() {
