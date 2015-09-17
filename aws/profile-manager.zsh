@@ -9,6 +9,8 @@ aws-profile() {
     echo "\nAWS profile manager by Victor Schröder - 2015\n"
 
     if [[ -z "$1" ]]; then
+        # When no profile is provided, output which profile
+        # is being used at the moment
         _aws-output-profile-info-in-use
         return 0
     fi
@@ -50,6 +52,8 @@ aws-profile() {
         if [[ ! -z "$AWS_REGION" ]]; then
             EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
             export EC2_URL
+            # There's no need to export anything for the AWS cli in this case,
+            # because it will use the region defined in the config file.
             echo "    [$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
         else
             echo "    [$AWS_PROFILE] ERROR: Default AWS region not found!!"
