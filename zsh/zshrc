@@ -3,6 +3,7 @@
 # @package myutilitybelt
 # @subpackage zsh
 # @author thiagoalessio <thiagoalessio@me.com>
+# @author Victor Schröder <schrodervictor@gmail.com>
 
 source ~/.myutilitybelt/zsh/aliases.zsh
 source ~/.myutilitybelt/zsh/colors.zsh
@@ -13,5 +14,6 @@ source ~/.myutilitybelt/zsh/prompt.zsh
 source ~/.myutilitybelt/zsh/tmux.zsh
 source ~/.myutilitybelt/zsh/vcs.zsh
 source ~/.myutilitybelt/zsh/emacs-mode.zsh
+source ~/.myutilitybelt/zsh/ansible.zsh
 
 source ~/.myutilitybelt/aws/profile-manager.zsh
