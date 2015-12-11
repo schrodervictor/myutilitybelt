@@ -41,7 +41,8 @@ find_and_export_java_home() {
         #
         # The expansion is taking only the last part of the result of
         # the `file` command (the path of wherever the link is pointing)
-        find_and_export_java_home "${${LINK_ENDPOINT##*\`}:0:-2}"
+        $TEMP="${LINK_ENDPOINT##*\`}"
+        find_and_export_java_home "${TEMP:0:-2}"
     else
         # If negative, we've found the binary. In this case we export the
         # variable, stripping out the '/bin/java' at the end of the string
@@ -56,7 +57,7 @@ if [[ ! -z "$JAVA_HOME" ]]; then
     find_and_export_java_home
 fi
 
-aws-set-ec2-credentials-from-csv-file() {
+set_ec2_credentials_from_csv() {
 
     local DEFAULT_CSV="$HOME/.aws/credentials.csv"
 
