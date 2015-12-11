@@ -46,7 +46,6 @@ aws-profile() {
     if [[ -z "$2" ]]; then
 
         # ec2 cli
-        local AWS_REGION
         AWS_REGION=$(_aws-get-ec2-url-for-profile "$1")
 
         if [[ ! -z "$AWS_REGION" ]]; then
@@ -59,6 +58,9 @@ aws-profile() {
             echo "    [$AWS_PROFILE] ERROR: Default AWS region not found!!"
         fi
 
+        # ansible modules
+        export AWS_REGION
+
     elif _aws-region-exists "$2"; then
 
         # aws cli and boto
@@ -69,6 +71,10 @@ aws-profile() {
         EC2_URL="https://ec2.${2}.amazonaws.com"
         export EC2_URL
         echo "    [$AWS_PROFILE] Successfully exported required AWS region ($2)"
+
+        # ansible ec2 modules
+        AWS_REGION="$2"
+        export AWS_REGION
 
     else
         echo "    [$AWS_PROFILE] ERROR: AWS region not found!!"
