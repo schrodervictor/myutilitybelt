@@ -18,7 +18,7 @@ Plugin 'gmarik/Vundle.vim'
 
 "file browsing
 Plugin 'scrooloose/nerdtree'
-"Plugin 'kien/ctrlp.vim'
+Plugin 'kien/ctrlp.vim'
 "Plugin 'majutsushi/tagbar'
 
 "code editing
