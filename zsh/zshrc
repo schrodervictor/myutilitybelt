@@ -16,5 +16,6 @@ source ~/.myutilitybelt/zsh/vcs.zsh
 source ~/.myutilitybelt/zsh/emacs-mode.zsh
 source ~/.myutilitybelt/zsh/nvm.zsh
 source ~/.myutilitybelt/zsh/ansible.zsh
+source ~/.myutilitybelt/zsh/rvm.zsh
 
 source ~/.myutilitybelt/aws/profile-manager.zsh
