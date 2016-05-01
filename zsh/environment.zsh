@@ -14,10 +14,16 @@ export SCALA_HOME="/opt/scala/2.11.8"
 export PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$SCALA_HOME/bin:$SBT_HOME/bin:$PATH"
 
 # EC2-cli required variables
-
+FIND_JAVA_RECURSION_LIMIT=10
 # Custom function to search for the appropriate java home and
 # export the environmental variable
 find_and_export_java_home() {
+
+    (( FIND_JAVA_RECURSION_LIMIT-- ))
+    if [[ $FIND_JAVA_RECURSION_LIMIT -eq 0 ]]; then
+        echo 'Reached recursion limit for setting JAVA_HOME!!'
+        return 1
+    fi
 
     # The first parameter is the reference we want to follow
     # If nothing is passed, the default will be the initial
@@ -39,14 +45,14 @@ find_and_export_java_home() {
     LINK_ENDPOINT=$(file "$LINK")
 
     # Check if the reference is a symbolic link
-    if [[ $LINK_ENDPOINT == *"symbolic link"* ]]; then
+    if [[ $LINK_ENDPOINT == *"symbolic link to"* ]]; then
 
         # If yes, call the function recursively
         #
         # The expansion is taking only the last part of the result of
         # the `file` command (the path of wherever the link is pointing)
-        $TEMP="${LINK_ENDPOINT##*\`}"
-        find_and_export_java_home "${TEMP:0:-2}"
+        TEMP="${LINK_ENDPOINT##*symbolic link to }"
+        find_and_export_java_home "$TEMP"
     else
         # If negative, we've found the binary. In this case we export the
         # variable, stripping out the '/bin/java' at the end of the string
@@ -57,7 +63,7 @@ find_and_export_java_home() {
 
 # Java is a dependency
 # If the JAVA_HOME is not defined already, call our custom function
-if [[ ! -z "$JAVA_HOME" ]]; then
+if [[ -z "$JAVA_HOME" ]]; then
     find_and_export_java_home
 fi
 
