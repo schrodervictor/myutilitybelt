@@ -114,3 +114,5 @@ source "$HOME/.myutilitybelt/aws/profile-manager.zsh"
 if [ -f ~/.myutilitybelt/aws/aws-bash-completion.bash ]; then
     . ~/.myutilitybelt/aws/aws-bash-completion.bash
 fi
+
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
