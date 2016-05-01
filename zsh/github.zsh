@@ -6,9 +6,21 @@
 
 function github-create-repo {
 
+    local VALID_ENV=true
+
+    if [[ -z "$GITHUB_USERNAME" ]]; then
+        echo 'ERROR: Your GitHub username is not correctly configured'
+        echo 'Make sure you have GITHUB_USERNAME in your environment'
+        unset VALID_ENV
+    fi
+
     if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
-        echo 'Your GitHub access token is not correctly configured'
+        echo 'ERROR: Your GitHub access token is not correctly configured'
         echo 'Make sure you have GITHUB_ACCESS_TOKEN in your environment'
+        unset VALID_ENV
+    fi
+
+    if [[ -z "$VALID_ENV" ]]; then
         return 1
     fi
 
@@ -24,7 +36,7 @@ function github-create-repo {
 
     curl -H 'Accept: application/vnd.github.v3+json' \
         -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
-        -H 'User-Agent: schrodervictor' \
+        -H "User-Agent: $GITHUB_USERNAME" \
         -X POST -i https://api.github.com/user/repos \
         --data-ascii "{\"name\": \"$REPO_NAME\", \"description\": \"$REPO_DESCRIPTION\"}"
 }
