@@ -7,7 +7,11 @@
 
 # Defines vim as the default editor
 export EDITOR=vim
-
+export JAVA_HOME="/opt/jdk/jdk1.8.0_74"
+export MAVEN_HOME="/opt/maven/3.3.9"
+export SBT_HOME="/opt/sbt/0.13.11"
+export SCALA_HOME="/opt/scala/2.11.8"
+export PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$SCALA_HOME/bin:$SBT_HOME/bin:$PATH"
 
 # EC2-cli required variables
 
@@ -104,5 +108,4 @@ etc_git_control() {
         sudo git -C /etc add .
         sudo git -C /etc commit -m "$1"
     fi
-
 }
