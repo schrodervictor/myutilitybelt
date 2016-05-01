@@ -5,8 +5,8 @@
 # @author Victor Schröder <schrodervictor@gmail.com>
 # @author thiagoalessio <thiagoalessio@me.com>
 
-HISTSIZE=5000
-SAVEHIST=5000
+HISTSIZE=100000
+SAVEHIST=100000
 HISTFILE=~/.zsh_history
 
 # Tells ZSH to not overwrite the previous history entries,
