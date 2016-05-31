@@ -16,4 +16,4 @@ Personal settings for the lovely tools that compose my workflow.
 
 ## Installation
 
-    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git ~/.myutilitybelt && sh ~/.myutilitybelt/install
+    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git ~/.myutilitybelt && ~/.myutilitybelt/install
