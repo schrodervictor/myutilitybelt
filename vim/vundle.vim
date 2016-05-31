@@ -35,7 +35,6 @@ Plugin 'kien/ctrlp.vim'
 
 "Syntax highlight
 "Plugin 'Glench/Vim-Jinja2-Syntax'
-Plugin 'file:///home/vschroder/Projects/Vim-Jinja2-Syntax'
 
 "version control integration
 "Plugin 'tpope/vim-fugitive'
