@@ -16,41 +16,9 @@ call vundle#begin('~/.vim/bundle/')
 " Vundle manages itself, this is required
 Plugin 'gmarik/Vundle.vim'
 
-"file browsing
-Plugin 'scrooloose/nerdtree'
-Plugin 'kien/ctrlp.vim'
-"Plugin 'majutsushi/tagbar'
-
-"code editing
-"Plugin 'Lokaltog/vim-easymotion'
-"Plugin 'godlygeek/tabular'
-"Plugin 'mbbill/undotree'
-"Plugin 'mattn/emmet-vim'
-"Plugin 'scrooloose/nerdcommenter'
-"Plugin 'garbas/vim-snipmate'
-"Plugin 'honza/vim-snippets'
-"Plugin 'ervandew/supertab'
-"Plugin 'tpope/vim-surround'
-"Plugin 'scrooloose/syntastic'
-
-"Syntax highlight
-"Plugin 'Glench/Vim-Jinja2-Syntax'
-
-"version control integration
-"Plugin 'tpope/vim-fugitive'
-"Plugin 'int3/vim-extradite'
-
 "visual/fancy stuff
 Plugin 'bling/vim-airline'
 Plugin 'nanotech/jellybeans.vim'
-"Plugin 'Yggdroot/indentLine'
-
-"integration with external programs
-"Plugin 'benmills/vimux'
-
-"dependencies
-"Plugin 'MarcWeber/vim-addon-mw-utils'
-"Plugin 'tomtom/tlib_vim'
 
 call vundle#end()
 
