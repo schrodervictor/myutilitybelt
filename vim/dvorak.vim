@@ -21,6 +21,7 @@ noremap q; q:
 " Useful remaps to navigate to the beginning and the end of the line
 noremap - $
 noremap _ ^
+noremap <leader>- 078lb
 
 " Since we are going to use the 'n' key to navigate, we need another key
 " for the search results.
