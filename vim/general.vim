@@ -66,11 +66,14 @@ set undofile
 set undodir=~/.vim/undo//
 
 " === TIMEOUT ===
-" disables timeout to speed up single-key codes
+" The combination of timeout=off and ttimeout=on means that timeouts will
+" be applied only to key codes (<Esc> prefixed keys).
 set notimeout
-" enables ttimeout to grant some timeout to key codes (but not for mapping)
 set ttimeout
-" set the ttimeout to a lower value
+" Set the ttimeoutlen to a small value, but greater than zero.
+" Because we are using notimeout, this ttimeoutlen will be applied only
+" for key codes, but not for mappings. Mappings would follow the timeoutlen
+" but because we use notimeout, mappings never timeout.
 set ttimeoutlen=100
 
 " === CHARACTER ENCODING ===
