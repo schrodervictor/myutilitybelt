@@ -14,16 +14,38 @@ set nocompatible
 set nomodeline
 
 " === BACKUP SETTINGS ===
-" turn backup ON
-set backup
-" set a centraliyed backup derectory
-" the double // prevents filename collisions
-" the last slash will expand to the full path
-" with the slashes replaced by %
+" turn backup OFF
+" Normally we would want to have it turned on. See bug and workaround below.
 " OBS: It's a known-bug that backupdir is not supporting
 " the correct double slash filename expansion
 " see: https://code.google.com/p/vim/issues/detail?id=179
+set nobackup
+
+" set a centralized backup directory
 set backupdir=~/.vim/backup//
+
+" This is the workaround for the backup filename expansion problem.
+autocmd BufWritePre * :call SaveBackups()
+
+function! SaveBackups()
+  if expand('%:p') =~ &backupskip | return | endif
+
+  for l:backupdir in split(&backupdir, ',')
+    :call SaveBackup(l:backupdir)
+  endfor
+endfunction
+
+function! SaveBackup(backupdir)
+  let l:filename = expand('%:p')
+  if a:backupdir =~ '//$'
+    let l:backup = escape(substitute(l:filename, '/', '%', 'g')  . &backupext, '%')
+  else
+    let l:backup = escape(expand('%') . &backupext, '%')
+  endif
+
+  let l:backup_path = a:backupdir . l:backup
+  :silent! execute '!cp ' . resolve(l:filename) . ' ' . l:backup_path
+endfunction
 
 " === SWAP FILES ===
 " turn swap files ON
@@ -44,11 +66,14 @@ set undofile
 set undodir=~/.vim/undo//
 
 " === TIMEOUT ===
-" disables timeout to speed up single-key codes
+" The combination of timeout=off and ttimeout=on means that timeouts will
+" be applied only to key codes (<Esc> prefixed keys).
 set notimeout
-" enables ttimeout to grant some timeout to key codes (but not for mapping)
 set ttimeout
-" set the ttimeout to a lower value
+" Set the ttimeoutlen to a small value, but greater than zero.
+" Because we are using notimeout, this ttimeoutlen will be applied only
+" for key codes, but not for mappings. Mappings would follow the timeoutlen
+" but because we use notimeout, mappings never timeout.
 set ttimeoutlen=100
 
 " === CHARACTER ENCODING ===

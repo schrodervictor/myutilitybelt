@@ -2,39 +2,23 @@
 "
 " @package myutilitybelt
 " @subpackage vim
-" @author thiagoalessio <thiagoalessio@me.com>
 " @author Victor Schröder <schrodervictor@gmail.com>
 
 " general settings
 source ~/.myutilitybelt/vim/general.vim
-
-" using Vundle to manage plugins
-" see: https://github.com/gmarik/Vundle.vim
 source ~/.myutilitybelt/vim/vundle.vim
 
 "key mappings
 source ~/.myutilitybelt/vim/mappings.vim
 
-"file browsing
-"source ~/.vim/ctrlp.vim
-source ~/.myutilitybelt/vim/nerdtree.vim
 
 "code editing
-"source ~/.vim/easymotion.vim
-source ~/.myutilitybelt/vim/folding.vim
 source ~/.myutilitybelt/vim/indentation.vim
-"source ~/.vim/syntastic.vim
-"source ~/.vim/tabular.vim
-"source ~/.vim/undotree.vim
-
-"integration
-"source ~/.vim/vimux.vim
 
 "vim interface
 source ~/.myutilitybelt/vim/interface.vim
 source ~/.myutilitybelt/vim/search.vim
 
 "visual/fancy stuff
-source ~/.myutilitybelt/vim/airline.vim
 source ~/.myutilitybelt/vim/colors.vim
 source ~/.myutilitybelt/vim/dvorak.vim
