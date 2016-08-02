@@ -34,6 +34,7 @@ mv $HOME/.vim $BACKUP_FOLDER || true
 mv $HOME/.vimrc $BACKUP_FOLDER || true
 mv $HOME/.tmux.conf $BACKUP_FOLDER || true
 mv $HOME/.gitconfig $BACKUP_FOLDER || true
+mv $FULL_PATH/zsh/private.zsh $BACKUP_FOLDER || true
 echo "done."
 
 echo -n "Creating the symlinks..."
@@ -50,6 +51,20 @@ echo "done."
 echo -n "Installing Vim plugins..."
 vim -N -u $HOME/.vim/vundle.vim -c ':BundleCleanInstallQuit'
 echo "done."
+
+echo "Collecting user data for private.zsh vars:"
+read -e -p "GPGKEY [$GPGKEY]:" INPUT_GPGKEY
+GPGKEY="${INPUT_GPGKEY:-${GPGKEY}}"
+read -e -p "GITHUB_USERNAME [$GITHUB_USERNAME]:" INPUT_GITHUB_USERNAME
+GITHUB_USERNAME="${INPUT_GITHUB_USERNAME:-${GITHUB_USERNAME}}"
+read -e -p "GITHUB_ACCESS_TOKEN [$GITHUB_ACCESS_TOKEN]:" INPUT_GITHUB_ACCESS_TOKEN
+GITHUB_ACCESS_TOKEN="${INPUT_GITHUB_ACCESS_TOKEN:-${GITHUB_ACCESS_TOKEN}}"
+
+cat <<EOT > $FULL_PATH/zsh/private.zsh
+export GPGKEY=$GPGKEY
+export GITHUB_USERNAME=$GITHUB_USERNAME
+export GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+EOT
 
 echo "--- Installation of myutilitybelt complete ---"
 exit 0
