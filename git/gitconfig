@@ -57,13 +57,6 @@
 
 [alias]
 
-    # some usual aliases
-    st = status
-    ci = commit
-    br = branch
-    co = checkout
-    df = diff
-
     # this gives us a compact status message
     s = status -s
 
