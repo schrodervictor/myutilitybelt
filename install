@@ -3,16 +3,14 @@
 DEPENDENCIES_OK=true
 declare -a MISSING
 echo -n "Checking dependencies..."
-command -v git   >/dev/null 2>&1 \
+command -v git >/dev/null 2>&1 \
     || DEPENDENCIES_OK=false MISSING=("${MISSING[@]}" "git")
-command -v zsh   >/dev/null 2>&1 \
+command -v zsh >/dev/null 2>&1 \
     || DEPENDENCIES_OK=false MISSING=("${MISSING[@]}" "zsh")
-command -v tmux  >/dev/null 2>&1 \
+command -v tmux >/dev/null 2>&1 \
     || DEPENDENCIES_OK=false MISSING=("${MISSING[@]}" "tmux")
-command -v vim   >/dev/null 2>&1 \
+command -v vim >/dev/null 2>&1 \
     || DEPENDENCIES_OK=false MISSING=("${MISSING[@]}" "vim")
-command -v ctags >/dev/null 2>&1 \
-    || DEPENDENCIES_OK=false MISSING=("${MISSING[@]}" "ctags")
 
 if [[ "$DEPENDENCIES_OK" == "true" ]]; then
     echo "passed."
@@ -22,30 +20,35 @@ else
     exit 1
 fi
 
-BACKUP_FOLDER=$HOME/.myutilitybelt/install-backup/$(date +%Y%m%d%H%M%S)
+RELATIVE_PATH="$(dirname "$0")"
+FULL_PATH="$(cd "$RELATIVE_PATH" && pwd)"
+
+BACKUP_FOLDER="$FULL_PATH/install-backup/$(date +%Y%m%d%H%M%S)"
 mkdir -p $BACKUP_FOLDER
+
 echo -n "Backing up previous configuration files..."
-mv $HOME/.bashrc       $BACKUP_FOLDER || true
+mv $HOME/.bashrc $BACKUP_FOLDER || true
 mv $HOME/.bash_aliases $BACKUP_FOLDER || true
-mv $HOME/.zshrc        $BACKUP_FOLDER || true
-mv $HOME/.vim          $BACKUP_FOLDER || true
-mv $HOME/.vimrc        $BACKUP_FOLDER || true
-mv $HOME/.tmux.conf    $BACKUP_FOLDER || true
-mv $HOME/.gitconfig    $BACKUP_FOLDER || true
+mv $HOME/.zshrc $BACKUP_FOLDER || true
+mv $HOME/.vim $BACKUP_FOLDER || true
+mv $HOME/.vimrc $BACKUP_FOLDER || true
+mv $HOME/.tmux.conf $BACKUP_FOLDER || true
+mv $HOME/.gitconfig $BACKUP_FOLDER || true
 echo "done."
 
 echo -n "Creating the symlinks..."
-ln -s $HOME/.myutilitybelt/bash/bashrc       $HOME/.bashrc
-ln -s $HOME/.myutilitybelt/bash/bash_aliases $HOME/.bash_aliases
-ln -s $HOME/.myutilitybelt/zsh/zshrc         $HOME/.zshrc
-ln -s $HOME/.myutilitybelt/vim               $HOME/.vim
-ln -s $HOME/.myutilitybelt/vim/vimrc         $HOME/.vimrc
-ln -s $HOME/.myutilitybelt/tmux/tmux.conf    $HOME/.tmux.conf
-ln -s $HOME/.myutilitybelt/git/gitconfig     $HOME/.gitconfig
+ln -sT $FULL_PATH $HOME/.myutilitybelt
+ln -sT $FULL_PATH/vim $HOME/.vim
+ln -s $FULL_PATH/bash/bashrc $HOME/.bashrc
+ln -s $FULL_PATH/bash/bash_aliases $HOME/.bash_aliases
+ln -s $FULL_PATH/zsh/zshrc $HOME/.zshrc
+ln -s $FULL_PATH/vim/vimrc $HOME/.vimrc
+ln -s $FULL_PATH/tmux/tmux.conf $HOME/.tmux.conf
+ln -s $FULL_PATH/git/gitconfig $HOME/.gitconfig
 echo "done."
 
 echo -n "Installing Vim plugins..."
-vim -N -u $HOME/.myutilitybelt/vim/vundle.vim -c ':BundleCleanInstallQuit'
+vim -N -u $HOME/.vim/vundle.vim -c ':BundleCleanInstallQuit'
 echo "done."
 
 echo "--- Installation of myutilitybelt complete ---"
