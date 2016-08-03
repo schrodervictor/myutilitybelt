@@ -5,6 +5,8 @@
 # @author thiagoalessio <thiagoalessio@me.com>
 # @author Victor Schröder <schrodervictor@gmail.com>
 
+source ~/.myutilitybelt/zsh/private.zsh
+
 source ~/.myutilitybelt/zsh/aliases.zsh
 source ~/.myutilitybelt/zsh/colors.zsh
 source ~/.myutilitybelt/zsh/completion.zsh

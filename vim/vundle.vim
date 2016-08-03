@@ -8,7 +8,7 @@
 filetype off
 
 " Tell to runtimepath where Vundle's repo is
-set runtimepath+=~/.myutilitybelt/vim/bundle/Vundle.vim
+set runtimepath+=~/.vim/bundle/Vundle.vim
 
 " Begin Vundle, indicating the destination path for plugins
 call vundle#begin('~/.vim/bundle/')

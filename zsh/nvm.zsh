@@ -7,6 +7,7 @@
 export NVM_DIR="$HOME/.nvm"
 
 # Activate NVM
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-nvm use --silent stable
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    . "$NVM_DIR/nvm.sh"
+    nvm use --silent stable
+fi

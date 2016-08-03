@@ -12,6 +12,9 @@ vim/backup/*
 vim/swap/*
 vim/undo/*
 
+# These are files with private information
+zsh/private.zsh
+
 # Every file named .gitkeep should be tracked, even if
 # it's inside an folder where everything is ignored.
 # For this reason, this must be the last entry of the list

@@ -12,8 +12,7 @@ Personal settings for the lovely tools that compose my workflow.
 * [Zsh](http://www.zsh.org/)
 * [tmux](http://tmux.sourceforge.net/)
 * [Vim](http://www.vim.org/)
-* [Ctags](http://ctags.sourceforge.net/)
 
 ## Installation
 
-    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git ~/.myutilitybelt && ~/.myutilitybelt/install
+    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git && ./myutilitybelt/install

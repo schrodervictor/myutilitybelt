@@ -5,20 +5,20 @@
 " @author Victor Schröder <schrodervictor@gmail.com>
 
 " general settings
-source ~/.myutilitybelt/vim/general.vim
-source ~/.myutilitybelt/vim/vundle.vim
+source ~/.vim/general.vim
+source ~/.vim/vundle.vim
 
 "key mappings
-source ~/.myutilitybelt/vim/mappings.vim
+source ~/.vim/mappings.vim
 
 
 "code editing
-source ~/.myutilitybelt/vim/indentation.vim
+source ~/.vim/indentation.vim
 
 "vim interface
-source ~/.myutilitybelt/vim/interface.vim
-source ~/.myutilitybelt/vim/search.vim
+source ~/.vim/interface.vim
+source ~/.vim/search.vim
 
 "visual/fancy stuff
-source ~/.myutilitybelt/vim/colors.vim
-source ~/.myutilitybelt/vim/dvorak.vim
+source ~/.vim/colors.vim
+source ~/.vim/dvorak.vim
