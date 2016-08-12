@@ -6,7 +6,7 @@
 
 aws-profile() {
 
-    echo "\nAWS profile manager by Victor Schröder - 2015\n"
+    echo -e "\nAWS profile manager by Victor Schröder - 2015\n"
 
     if [[ -z "$1" ]]; then
         # When no profile is provided, output which profile
@@ -141,6 +141,8 @@ _aws-get-access-and-secret-key() {
     local SECRET_KEY
     local GREP_OUTPUT
     local LINE
+    local AAKI
+    local ASAK
 
     local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
 
@@ -150,12 +152,16 @@ _aws-get-access-and-secret-key() {
 
     while read -r LINE; do
         if echo "$LINE" | grep --quiet 'aws_access_key_id'; then
-            ACCESS_KEY=$(expr "$LINE" : '^aws\_access\_key\_id\s\?=\s\?\(.*\)$')
+            AAKI=$(echo "$LINE" | grep 'aws_access_key_id')
+            # The access key is 20 chars long.
+            ACCESS_KEY=$(echo "${AAKI:(-20)}")
             continue
         fi
 
         if echo "$LINE" | grep --quiet 'aws_secret_access_key'; then
-            SECRET_KEY=$(expr "$LINE" : '^aws\_secret\_access\_key\s\?=\s\?\(.*\)$')
+            ASAK=$(echo "$LINE" | grep 'aws_secret_access_key')
+            # The secret key is 40 chars long.
+            SECRET_KEY=$(echo "${ASAK:(-40)}")
             continue
         fi
     done < <(echo "$GREP_OUTPUT")
@@ -180,12 +186,14 @@ _aws-get-ec2-url-for-profile() {
 
     local AWS_PROFILE_SECTION
     local LINE
+    local REGION
 
     AWS_PROFILE_SECTION=$(awk '/\[.+\]/ {isSection=0}; /\[profile '"$1"'\]/ {isSection=1}; isSection==1 {print}' "$AWS_CONFIG_FILE")
 
     while read -r LINE; do
         if echo "$LINE" | grep --quiet 'region'; then
-            AWS_REGION=$(expr "$LINE" : '^region\s\?=\s\?\(.*\)$')
+            REGION=$(echo "$LINE" | grep 'region')
+            AWS_REGION=$(echo "$REGION" | sed 's/.*=//' | sed 's/ //')
             continue
         fi
     done < <(echo "$AWS_PROFILE_SECTION")
@@ -218,23 +226,23 @@ _aws-get-all-regions() {
 
 _aws-output-profile-info-in-use() {
 
-    echo "    You are currently using:"
-    echo "    [$AWS_PROFILE] as the default profile for AWS cli, EC2 cli, Boto and Ansible"
-    echo "    [$AWS_DEFAULT_REGION] as the default region for AWS cli, Boto and Ansible"
-    echo "    [$EC2_URL] as the endpoit for EC2 cli"
-    echo "\nTo show help info use aws-profile help, --help or -h"
+    echo -e "    You are currently using:"
+    echo -e "    [$AWS_PROFILE] as the default profile for AWS cli, EC2 cli, Boto and Ansible"
+    echo -e "    [$AWS_DEFAULT_REGION] as the default region for AWS cli, Boto and Ansible"
+    echo -e "    [$EC2_URL] as the endpoit for EC2 cli"
+    echo -e "\nTo show help info use aws-profile help, --help or -h"
     return 0
 }
 
 _aws-output-help() {
 
-    echo "    Usage:\n"
-    echo "        help, --help, -h    Shows this help info"
-    echo "        First argument      the profile name to set as default for the current session"
-    echo "        Second argument     the AWS region to set as default for the current session"
-    echo "                            (optional, if not provided will try to set the region from"
-    echo "                            your config file)"
-    echo "        Without arguments   shows the current settings"
+    echo -e "    Usage:\n"
+    echo -e "        help, --help, -h    Shows this help info"
+    echo -e "        First argument      the profile name to set as default for the current session"
+    echo -e "        Second argument     the AWS region to set as default for the current session"
+    echo -e "                            (optional, if not provided will try to set the region from"
+    echo -e "                            your config file)"
+    echo -e "        Without arguments   shows the current settings"
     return 0
 
 }
