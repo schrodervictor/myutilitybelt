@@ -7,11 +7,43 @@
 
 # Defines vim as the default editor
 export EDITOR=vim
-export JAVA_HOME="/opt/jdk/jdk1.8.0_74"
-export MAVEN_HOME="/opt/maven/3.3.9"
-export SBT_HOME="/opt/sbt/0.13.11"
-export SCALA_HOME="/opt/scala/2.11.8"
-export PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$SCALA_HOME/bin:$SBT_HOME/bin:$PATH"
+
+# Several Java settings
+OPT_JAVA="/opt/jdk/current"
+if [[ -L "$OPT_JAVA" && -d "$OPT_JAVA" ]]; then
+    export JAVA_HOME="$OPT_JAVA"
+fi
+
+if [[ "$JAVA_HOME" && "$PATH" != *"$JAVA_HOME"* ]]; then
+    export PATH="$JAVA_HOME/bin:$PATH"
+fi
+
+OPT_MAVEN="/opt/maven/current"
+if [[ -L "$OPT_MAVEN" && -d "$OPT_MAVEN" ]]; then
+    export MAVEN_HOME="$OPT_MAVEN"
+fi
+
+if [[ "$MAVEN_HOME" && "$PATH" != *"$MAVEN_HOME"* ]]; then
+    export PATH="$MAVEN_HOME/bin:$PATH"
+fi
+
+OPT_SCALA="/opt/scala/current"
+if [[ -L "$OPT_SCALA" && -d "$OPT_SCALA" ]]; then
+    export SCALA_HOME="$OPT_SCALA"
+fi
+
+if [[ "$SCALA_HOME" && "$PATH" != *"$SCALA_HOME"* ]]; then
+    export PATH="$SCALA_HOME/bin:$PATH"
+fi
+
+OPT_SBT="/opt/sbt/current"
+if [[ -L "$OPT_SBT" && -d "$OPT_SBT" ]]; then
+    export SBT_HOME="$OPT_SBT"
+fi
+
+if [[ "$SBT_HOME" && "$PATH" != *"$SBT_HOME"* ]]; then
+    export PATH="$SBT_HOME/bin:$PATH"
+fi
 
 # EC2-cli required variables
 FIND_JAVA_RECURSION_LIMIT=10
