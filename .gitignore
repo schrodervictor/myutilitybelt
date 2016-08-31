@@ -14,6 +14,7 @@ vim/undo/*
 
 # These are files with private information
 zsh/private.zsh
+git/user.inc
 
 # Every file named .gitkeep should be tracked, even if
 # it's inside an folder where everything is ignored.
