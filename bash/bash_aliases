@@ -5,3 +5,6 @@ alias l='ls -CF'
 
 # Force tmux to assume the terminal supports 256 colours
 alias tmux='tmux -2'
+
+# Avoid node_modules output in nodejs projects
+alias tree='tree -I node_modules'

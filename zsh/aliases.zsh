@@ -2,7 +2,7 @@
 #
 # @package myutilitybelt
 # @subpackage zsh
-# @author thiagoalessio <thiagoalessio@me.com>
+# @author Victor Schröder <schrodervictor@gmail.com>
 
 alias c='clear'
 alias l='ls -a'
@@ -14,3 +14,4 @@ alias gl='git log --graph --pretty=format:'\''%Cred%h%Creset -%C(yellow)%d%Crese
 alias etc="etc_git_control"
 alias vagrant="BUNDLE_GEMFILE=$HOME/Projects/community/vagrant/Gemfile vagrant"
 alias rebar3="$HOME/Projects/community/rebar3/_build/default/bin/rebar3"
+alias tree='tree -I node_modules'
