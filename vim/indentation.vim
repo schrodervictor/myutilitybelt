@@ -35,3 +35,13 @@ set cindent
 " Make some important invisible chars visible
 " when list is turned on
 set listchars=tab:▸\ ,trail:·,extends:#,nbsp:·,eol:¬
+
+" Specific overrides per filetype
+autocmd Filetype javascript call SetIndentation(2)
+autocmd Filetype vim call SetIndentation(2)
+
+function SetIndentation(spaces)
+  let &l:tabstop = a:spaces
+  let &l:shiftwidth = a:spaces
+  let &l:softtabstop = a:spaces
+endfunction
