@@ -29,6 +29,7 @@ autocmd BufWritePre * :call SaveBackups()
 
 function! SaveBackups()
   if expand('%:p') =~ &backupskip | return | endif
+  if !filereadable(@%) | return | endif
 
   for l:backupdir in split(&backupdir, ',')
     :call SaveBackup(l:backupdir)
