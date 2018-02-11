@@ -96,6 +96,10 @@ set nohidden
 " === NETRW HISTORY ===
 " disables netrw history
 let g:netrw_dirhistmax = 0
+" disables banner
+let g:netrw_banner = 0
+" tree style
+let g:netrw_liststyle = 3
 
 
 " === AUTOCOMMANDS ===
