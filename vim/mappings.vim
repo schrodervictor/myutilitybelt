@@ -36,3 +36,12 @@ noremap <leader>t :bprevious<cr>
 
 " Faster way to delete a buffer
 noremap <leader>bd :bdelete<cr>
+
+" Convertion from timestamp to Date
+function! ConvertTimestampToDate()
+  execute "normal! viwd"
+  let date_string = strftime('%c', @@)
+  execute "normal! i" . date_string
+endfunction
+
+nnoremap <leader>d :call ConvertTimestampToDate() <CR>
