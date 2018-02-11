@@ -27,9 +27,8 @@ set relativenumber
 " set list ON to show invisible chars
 set list
 
-" Define the signs that will be used for the invisible chars
-" when list is turned on.
-set listchars=eol:¬,trail:.,tab:\|_
+" Make some important invisible chars visible when list is turned on
+set listchars=tab:\|_,trail:·,extends:#,nbsp:·,eol:¬
 
 " Turn wildmenu ON (autocompletion menu)
 set wildmenu
