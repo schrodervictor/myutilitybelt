@@ -15,6 +15,7 @@
 
     # Vimdiff will be the default tool for diffs
     tool = vimdiff
+    algorithm = patience
 
 [difftool]
 
@@ -51,7 +52,7 @@
     # ReReRe stands for 'Reuse Recorded Resolution'
     # This means, on repetitive conflicts, Git will reuse the same
     # strategy we last used last time for a given conflict
-    enabled = true
+    enabled = false
 
 [alias]
 
