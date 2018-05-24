@@ -66,10 +66,6 @@ aws-profile() {
         # aws cli and boto
         AWS_DEFAULT_REGION="$2"
         export AWS_DEFAULT_REGION
-
-        # ec2 cli
-        EC2_URL="https://ec2.${2}.amazonaws.com"
-        export EC2_URL
         echo "    [$AWS_PROFILE] Successfully exported required AWS region ($2)"
 
         # ansible ec2 modules
