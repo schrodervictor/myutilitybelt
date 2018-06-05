@@ -3,7 +3,6 @@
 # @package myutilitybelt
 # @subpackage zsh
 # @author Victor Schröder <schrodervictor@gmail.com>
-# @author thiagoalessio <thiagoalessio@me.com>
 
 HISTSIZE=100000
 SAVEHIST=100000
@@ -21,13 +20,9 @@ setopt INC_APPEND_HISTORY
 # in the history, but makes the history file unreadable by other shells
 setopt EXTENDED_HISTORY
 
-# Do not store sequential duplicated commands in the history
-setopt HIST_IGNORE_DUPS
-
 # Tidy up the line when it is entered into the history by
 # removing any excess blanks that mean nothing to the shell
 setopt HIST_REDUCE_BLANKS
 
-# For a given session, don't save duplicated commands more
-# than once
-setopt HIST_SAVE_NO_DUPS
+# Do not show repeated history entries when doing a search
+setopt HIST_FIND_NO_DUPS
