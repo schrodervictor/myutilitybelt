@@ -4,7 +4,7 @@
 # @subpackage zsh
 # @author Victor Schröder <schrodervictor@gmail.com>
 
-function github-create-repo {
+function github-validate-env {
 
     local VALID_ENV=true
 
@@ -23,20 +23,61 @@ function github-create-repo {
     if [[ -z "$VALID_ENV" ]]; then
         return 1
     fi
+}
 
+function github-create-repo {
+
+    github-validate-env || return 1
+
+    local GITHUB_ENDPOINT="https://api.github.com/user/repos"
     local REPO_NAME
     local REPO_DESCRIPTION
-    echo $REPO_NAME $REPO_DESCRIPTION
+    local REPO_OWNER
+    local REPO_PRIVATE
+    local PARAMS=()
+
+    echo -n "Owner of the repository [$GITHUB_USERNAME]: "
+    read REPO_OWNER
+
+    REPO_OWNER="${REPO_OWNER:-$GITHUB_USERNAME}"
+
+    if [[ "$GITHUB_USERNAME" != "$REPO_OWNER" ]]; then
+        GITHUB_ENDPOINT="https://api.github.com/orgs/$REPO_OWNER/repos"
+    fi
+
+    echo -n "Private? (Y/n): "
+    read REPO_PRIVATE
+
+    REPO_PRIVATE="${REPO_PRIVATE:-y}"
+
+    if [[ ! " y n Y N " =~ " $REPO_PRIVATE " ]]; then
+        echo "Invalid option"
+        return 1
+    fi
 
     echo -n "Enter the repository name: "
     read REPO_NAME
 
+    if [[ -z "$REPO_NAME" ]]; then
+        echo 'You have to give the repo a name. Try again...'
+        return 1
+    fi
+
     echo -n "Enter the repository description: "
     read REPO_DESCRIPTION
 
-    curl -H 'Accept: application/vnd.github.v3+json' \
+    PARAMS+=('"name":"'$REPO_NAME'"')
+    PARAMS+=('"description":"'$REPO_DESCRIPTION'"')
+
+    if [[ " y Y " =~ " ${REPO_PRIVATE} " ]]; then
+        PARAMS+=('"private":true')
+    fi
+
+    curl \
+        -X POST \
+        -i "$GITHUB_ENDPOINT" \
+        -H 'Accept: application/vnd.github.v3+json' \
         -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
         -H "User-Agent: $GITHUB_USERNAME" \
-        -X POST -i https://api.github.com/user/repos \
-        --data-ascii "{\"name\": \"$REPO_NAME\", \"description\": \"$REPO_DESCRIPTION\"}"
+        --data-ascii "{$(IFS=,; echo "${PARAMS[*]}")}"
 }
