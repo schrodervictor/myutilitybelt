@@ -67,3 +67,6 @@ set showcmd
 set laststatus=2
 set splitbelow
 set splitright
+
+let php_special_functions = 1
+let php_htmlInStrings = 1
