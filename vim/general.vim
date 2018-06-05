@@ -101,6 +101,9 @@ let g:netrw_banner = 0
 " tree style
 let g:netrw_liststyle = 3
 
+" === FILE FINDER ===
+" this little setting allow some nice fuzzy find recursively
+set path+=**,.modman/**
 
 " === AUTOCOMMANDS ===
 " I never use modula2 files, but a lot of markdown with .md extension
