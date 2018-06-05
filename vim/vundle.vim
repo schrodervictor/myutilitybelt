@@ -20,6 +20,9 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'bling/vim-airline'
 Plugin 'nanotech/jellybeans.vim'
 
+" X-Debug
+Plugin 'joonty/vdebug'
+
 call vundle#end()
 
 " Turn the filetype detection ON again
