@@ -49,6 +49,14 @@ function github-request {
                 DATA="$2"
                 shift 2
                 ;;
+            --diff)
+                ACCEPT='application/vnd.github.v3.diff'
+                shift
+                ;;
+            --json)
+                ACCEPT='application/vnd.github.v3+json'
+                shift
+                ;;
             *)
                 echo -e "Invalid option: $1\n"
                 return 1
@@ -121,4 +129,89 @@ function github-create-repo {
     local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
 
     github-request -m POST -e "$ENDPOINT" -d "$JSON"
+}
+
+function github-current-repo-name {
+    # Check if current directory is a git repo
+    git rev-parse > /dev/null 2>&1 || return 1
+
+    local GIT_DIR="$(git rev-parse --git-dir)"
+    local PATTERN='^.*url.*=.*git@github.com:\(.\+\).git$'
+    local REPO_NAME="$(cat "$GIT_DIR/config" | sed -n "s/$PATTERN/\1/p")"
+
+    if [ -z "$REPO_NAME" ]; then
+        return 1
+    fi
+
+    echo "$REPO_NAME"
+}
+
+function github-create-pull-request {
+    github-validate-env || return 1
+
+    local TITLE
+    local DEST
+
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -m|--message)
+          TITLE="$2"
+          shift 2
+          ;;
+        -b|--base)
+          BASE="$2"
+          shift 2
+          ;;
+        *)
+          echo -e "Invalid option: $1\n"
+          return 1
+          ;;
+      esac
+    done
+
+    local HEAD="$(git rev-parse --abbrev-ref HEAD)"
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+
+    BASE="${BASE:-master}"
+    TITLE="${TITLE:-"$HEAD into $BASE"}"
+
+    if [[ $HEAD = $BASE ]]; then
+        echo 'HEAD and merge base must be different.'
+        echo "[$HEAD] given for both."
+        return 1
+    fi
+
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls"
+
+    local PAYLOAD=()
+
+    PAYLOAD+=('"title":"'$TITLE'"')
+    PAYLOAD+=('"head":"'$HEAD'"')
+    PAYLOAD+=('"base":"'$BASE'"')
+
+    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+
+    github-request -m POST -e "$ENDPOINT" -d "$JSON"
+}
+
+function github-view-pull-request {
+    github-validate-env || return 1
+
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+    local PR_NUMBER="$1"
+
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER"
+
+    local DIFF="$(github-request -e "$ENDPOINT" --diff)"
+
+    echo "$DIFF" | vim -
+}
+
+function github-list-repos {
+    github-validate-env || return 1
+    github-request -e 'user/repos'
 }
