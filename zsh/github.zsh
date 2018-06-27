@@ -25,16 +25,59 @@ function github-validate-env {
     fi
 }
 
-function github-create-repo {
-
+function github-request {
     github-validate-env || return 1
 
-    local GITHUB_ENDPOINT="https://api.github.com/user/repos"
+    local METHOD='GET'
+    local BASE_URL='https://api.github.com'
+    local ACCEPT='application/vnd.github.v3+json'
+
+    local ENDPOINT
+    local DATA
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -e|--endpoint)
+                ENDPOINT="$2"
+                shift 2
+                ;;
+            -m|--method)
+                METHOD="$2"
+                shift 2
+                ;;
+            -d|--data)
+                DATA="$2"
+                shift 2
+                ;;
+            *)
+                echo -e "Invalid option: $1\n"
+                return 1
+                ;;
+        esac
+    done
+
+    local CURL_OPTS=()
+
+    CURL_OPTS+=(-X "$METHOD")
+    CURL_OPTS+=(-H "Accept: $ACCEPT")
+    CURL_OPTS+=(-H "Authorization: token $GITHUB_ACCESS_TOKEN")
+    CURL_OPTS+=(-H "User-Agent: $GITHUB_USERNAME")
+
+    if [ -n "$DATA" ]; then
+        CURL_OPTS+=(--data-ascii "$DATA")
+    fi
+
+    curl -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT"
+}
+
+function github-create-repo {
+    github-validate-env || return 1
+
+    local ENDPOINT="user/repos"
     local REPO_NAME
     local REPO_DESCRIPTION
     local REPO_OWNER
     local REPO_PRIVATE
-    local PARAMS=()
 
     echo -n "Owner of the repository [$GITHUB_USERNAME]: "
     read REPO_OWNER
@@ -42,7 +85,7 @@ function github-create-repo {
     REPO_OWNER="${REPO_OWNER:-$GITHUB_USERNAME}"
 
     if [[ "$GITHUB_USERNAME" != "$REPO_OWNER" ]]; then
-        GITHUB_ENDPOINT="https://api.github.com/orgs/$REPO_OWNER/repos"
+        ENDPOINT="orgs/$REPO_OWNER/repos"
     fi
 
     echo -n "Private? (Y/n): "
@@ -66,18 +109,16 @@ function github-create-repo {
     echo -n "Enter the repository description: "
     read REPO_DESCRIPTION
 
-    PARAMS+=('"name":"'$REPO_NAME'"')
-    PARAMS+=('"description":"'$REPO_DESCRIPTION'"')
+    local PAYLOAD=()
+
+    PAYLOAD+=('"name":"'$REPO_NAME'"')
+    PAYLOAD+=('"description":"'$REPO_DESCRIPTION'"')
 
     if [[ " y Y " =~ " ${REPO_PRIVATE} " ]]; then
-        PARAMS+=('"private":true')
+        PAYLOAD+=('"private":true')
     fi
 
-    curl \
-        -X POST \
-        -i "$GITHUB_ENDPOINT" \
-        -H 'Accept: application/vnd.github.v3+json' \
-        -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
-        -H "User-Agent: $GITHUB_USERNAME" \
-        --data-ascii "{$(IFS=,; echo "${PARAMS[*]}")}"
+    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+
+    github-request -m POST -e "$ENDPOINT" -d "$JSON"
 }
