@@ -276,6 +276,46 @@ function github-list-pull-requests {
     local TITLE
 
     while read -u 3 -r NUMBER && read -u 4 -r TITLE; do
-        echo "$NUMBER -- $TITLE"
+        echo "$NUMBER: $TITLE"
     done 3< <(echo "$NUMBERS") 4< <(echo "$TITLES")
 }
+
+function _github-view-pull-request {
+    github-validate-dir -q || return 1
+
+    local PR_LIST="$(github-list-pull-requests)"
+
+    # Zsh completion
+    if command -v _describe > /dev/null 2>&1; then
+        local -a OPTIONS
+        local OPTION
+
+        while read -r OPTION; do
+            OPTIONS+=( "$OPTION" )
+        done < <(echo "$PR_LIST")
+
+        _describe 'github-view-pull-request' OPTIONS
+
+        return 0
+    fi
+
+    # Bash completion
+    local CUR="${COMP_WORDS[COMP_CWORD]}"
+    local ORIG_IFS="$IFS"
+    local IFS=$'\n'
+
+    COMPREPLY=( $(compgen -W "$PR_LIST" -- "$CUR") )
+    IFS="$ORIG_IFS"
+
+    if [[ ${#COMPREPLY[*]} -eq 1 ]]; then
+        COMPREPLY=( ${COMPREPLY[0]%%: *} )
+    fi
+
+    return 0
+}
+
+command -v complete > /dev/null 2>&1 \
+    && complete -F _github-view-pull-request github-view-pull-request
+
+command -v compdef  > /dev/null 2>&1 \
+    && compdef _github-view-pull-request github-view-pull-request
