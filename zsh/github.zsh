@@ -25,6 +25,31 @@ function github-validate-env {
     fi
 }
 
+function github-validate-dir {
+    local QUIET=
+    if [[ "$1" = "-q" ]]; then
+        QUIET=true
+    fi
+
+    git rev-parse > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        $QUIET echo 'Current directory is not in a git repository'
+        return 1
+    fi
+
+    local GIT_DIR="$(git rev-parse --git-dir)/config"
+
+    cat "$GIT_DIR" | grep -q 'url.*=.*git@github\.com:.*\.git'
+
+    if [ $? -ne 0 ]; then
+        $QUIET echo 'Current repository does not have Github as a remote'
+        return 1
+    fi
+
+    return 0
+}
+
 function github-request {
     github-validate-env || return 1
 
@@ -82,11 +107,8 @@ function github-create-repo {
     github-validate-env || return 1
 
     local ENDPOINT="user/repos"
-    local REPO_NAME
-    local REPO_DESCRIPTION
-    local REPO_OWNER
-    local REPO_PRIVATE
 
+    local REPO_OWNER
     echo -n "Owner of the repository [$GITHUB_USERNAME]: "
     read REPO_OWNER
 
@@ -96,6 +118,7 @@ function github-create-repo {
         ENDPOINT="orgs/$REPO_OWNER/repos"
     fi
 
+    local REPO_PRIVATE
     echo -n "Private? (Y/n): "
     read REPO_PRIVATE
 
@@ -106,6 +129,7 @@ function github-create-repo {
         return 1
     fi
 
+    local REPO_NAME
     echo -n "Enter the repository name: "
     read REPO_NAME
 
@@ -114,6 +138,7 @@ function github-create-repo {
         return 1
     fi
 
+    local REPO_DESCRIPTION
     echo -n "Enter the repository description: "
     read REPO_DESCRIPTION
 
@@ -132,8 +157,7 @@ function github-create-repo {
 }
 
 function github-current-repo-name {
-    # Check if current directory is a git repo
-    git rev-parse > /dev/null 2>&1 || return 1
+    github-validate-dir || return 1
 
     local GIT_DIR="$(git rev-parse --git-dir)"
     local PATTERN='^.*url.*=.*git@github.com:\(.\+\).git$'
@@ -148,6 +172,7 @@ function github-current-repo-name {
 
 function github-create-pull-request {
     github-validate-env || return 1
+    github-validate-dir || return 1
 
     local TITLE
     local DEST
