@@ -223,15 +223,26 @@ function github-create-pull-request {
 
 function github-view-pull-request {
     github-validate-env || return 1
+    github-validate-dir || return 1
 
     local REPO="$(github-current-repo-name)"
     local REPO_OWNER="${REPO%/*}"
     local REPO_NAME="${REPO#*/}"
     local PR_NUMBER="$1"
 
+    if [ -z "$PR_NUMBER" ]; then
+        echo 'Please provide a valid pull request number'
+        return 1
+    fi
+
     local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER"
 
     local DIFF="$(github-request -e "$ENDPOINT" --diff)"
+
+    if [ -z "$DIFF" ]; then
+        echo "Couldn't find any diff for the pull request $PR_NUMBER"
+        return 1
+    fi
 
     echo "$DIFF" | vim -
 }
@@ -239,4 +250,32 @@ function github-view-pull-request {
 function github-list-repos {
     github-validate-env || return 1
     github-request -e 'user/repos'
+}
+
+function github-list-pull-requests {
+    github-validate-env || return 1
+    github-validate-dir || return 1
+
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls"
+
+    local RESULT="$(github-request -e "$ENDPOINT")"
+
+    local NUMBERS="$(echo "$RESULT" \
+        | grep -o '"number":[^,]\+,' \
+        | sed -n 's/^"number":\(.\+\),$/\1/p')"
+
+    local TITLES="$(echo "$RESULT" \
+        | grep -o '"title":"[^"]\+"' \
+        | sed -n 's/^"title":"\(.\+\)"$/\1/p')"
+
+
+    local NUMBER
+    local TITLE
+
+    while read -u 3 -r NUMBER && read -u 4 -r TITLE; do
+        echo "$NUMBER -- $TITLE"
+    done 3< <(echo "$NUMBERS") 4< <(echo "$TITLES")
 }
