@@ -49,17 +49,12 @@ aws-profile() {
         AWS_REGION=$(_aws-get-ec2-url-for-profile "$1")
 
         if [[ ! -z "$AWS_REGION" ]]; then
-            EC2_URL="https://ec2.${AWS_REGION}.amazonaws.com"
-            export EC2_URL
-            # There's no need to export anything for the AWS cli in this case,
-            # because it will use the region defined in the config file.
+            # ansible modules
+            export AWS_REGION
             echo "    [$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
         else
             echo "    [$AWS_PROFILE] ERROR: Default AWS region not found!!"
         fi
-
-        # ansible modules
-        export AWS_REGION
 
     elif _aws-region-exists "$2"; then
 
