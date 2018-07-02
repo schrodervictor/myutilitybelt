@@ -1,24 +1,44 @@
 _aws-profile() {
+    aws-file-exists "$(aws-credentials-file)" || return 1
 
-    _aws-file-exists "$HOME/.aws/credentials"
+    local PREV CUR PROFILES REGIONS OPTIONS
 
-    if [[ $? -ne 0 ]]; then
-        return 1
+    PROFILES=( $(aws-get-all-profiles) )
+    REGIONS=( $(aws-get-all-regions) )
+    OPTIONS=( -h --help )
+
+    if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -r\| --region\)'; then
+        OPTIONS+=( -r --region )
     fi
 
-    local CUR PROFILES REGIONS
+    if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -p\| --profile\)'; then
+        OPTIONS+=( -p --profile )
+    fi
 
-    PROFILES=( $(_aws-get-all-profiles) )
-    REGIONS=( $(_aws-get-all-regions) )
+    if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -q\| --quiet\)'; then
+        OPTIONS+=( -q --quiet )
+    fi
+
     COMPREPLY=()
     CUR="${COMP_WORDS[COMP_CWORD]}"
+    PREV="${COMP_WORDS[COMP_CWORD - 1]}"
 
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $(compgen -W "${PROFILES[*]}" -- "$CUR" ) )
-    elif [ $COMP_CWORD -eq 2 ]; then
-        COMPREPLY=( $(compgen -W "${REGIONS[*]}" -- "$CUR" ) )
-    fi
+    case "$PREV" in
+        -h|--help)
+            return 0
+            ;;
+        -p|--profile)
+            COMPREPLY=( $(compgen -W "${PROFILES[*]}" -- "$CUR" ) )
+            ;;
+        -r|--region)
+            COMPREPLY=( $(compgen -W "${REGIONS[*]}" -- "$CUR" ) )
+            ;;
+        *)
+            COMPREPLY=( $(compgen -W "${OPTIONS[*]}" -- "$CUR" ) )
+            ;;
+    esac
 
     return 0
 }
+
 complete -F _aws-profile aws-profile

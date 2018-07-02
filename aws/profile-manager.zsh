@@ -4,236 +4,249 @@
 # @subpackage aws
 # @author Victor Schröder <schrodervictor@gmail.com>
 
-aws-profile() {
+function aws-profile() {
+    local QUIET
+    local PROFILE
+    local REGION
 
-    echo -e "\nAWS profile manager by Victor Schröder - 2015\n"
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -h|--help)
+                aws-output-help
+                return 0
+                ;;
+            -q|--quiet)
+                QUIET=true
+                shift
+                ;;
+            -p|--profile)
+                PROFILE="$2"
+                shift 2
+                ;;
+            -r|--region)
+                REGION="$2"
+                shift 2
+                ;;
 
-    if [[ -z "$1" ]]; then
-        # When no profile is provided, output which profile
-        # is being used at the moment
-        _aws-output-profile-info-in-use
+            # Backwards compatibility with the old positional args
+            *)
+                if [ -z "$PROFILE" ]; then
+                    PROFILE="$1"
+                    shift
+                    continue
+                fi
+
+                if [ -z "$REGION" ]; then
+                    REGION="$1"
+                    shift
+                    continue
+                fi
+                ;;
+        esac
+    done
+
+    $QUIET echo -e "\nAWS profile manager by Victor Schröder - 2018\n"
+
+    if [ -z "$PROFILE" ]; then
+        # No profile was provided. Output which profile is being used
+        aws-profile-show-info
         return 0
     fi
 
-    if [[ " help --help -h " =~ " $1 " ]]; then
-        _aws-output-help
-        return 0
-    fi
-
-    if _aws-profile-exists "$1"; then
-
-        aws-clean-environment
-
-        # aws cli and boto
-        export AWS_PROFILE="$1"
-        echo "    [$AWS_PROFILE] Successfully exported AWS profile"
-
-        # ec2 cli
-        read -r AWS_ACCESS_KEY AWS_SECRET_KEY <<< $(_aws-get-access-and-secret-key "$1")
-        if [[ ! -z "$AWS_ACCESS_KEY" ]] && [[ ! -z "$AWS_SECRET_KEY" ]]; then
-            export AWS_ACCESS_KEY
-            export AWS_SECRET_KEY
-            echo "    [$AWS_PROFILE] Successfully exported access and secret keys"
-        else
-            echo "    [$AWS_PROFILE] ERROR: Access and/or secret keys not found!"
-        fi
-
-    else
-        echo "    [$1] ERROR: AWS profile not found!!"
+    if ! aws-profile-exists "$PROFILE"; then
+        $QUIET echo "    [$PROFILE] ERROR: AWS profile not found!!"
         return 1
     fi
 
-    if [[ -z "$2" ]]; then
+    local ACCESS_KEY="$(aws-profile-get-access-key "$PROFILE")"
+    local SECRET_KEY="$(aws-profile-get-secret-key "$PROFILE")"
 
-        # ec2 cli
-        AWS_REGION=$(_aws-get-ec2-url-for-profile "$1")
+    local SUCCESS=true
 
-        if [[ ! -z "$AWS_REGION" ]]; then
-            # ansible modules
-            export AWS_REGION
-            echo "    [$AWS_PROFILE] Successfully exported default AWS region ($AWS_REGION)"
-        else
-            echo "    [$AWS_PROFILE] ERROR: Default AWS region not found!!"
-        fi
+    if [ -z "$ACCESS_KEY" ]; then
+        $QUIET echo "    [$PROFILE] ERROR: Access key not found!"
+        SUCCESS=false
+    fi
 
-    elif _aws-region-exists "$2"; then
+    if [ -z "$SECRET_KEY" ]; then
+        $QUIET echo "    [$PROFILE] ERROR: Secret key not found!"
+        SUCCESS=false
+    fi
 
-        # aws cli and boto
-        AWS_DEFAULT_REGION="$2"
-        export AWS_DEFAULT_REGION
-        echo "    [$AWS_PROFILE] Successfully exported required AWS region ($2)"
+    $SUCCESS || return 1
 
+    DEFAULT_REGION="$(aws-profile-get-region "$PROFILE")"
+
+    if aws-region-exists "$DEFAULT_REGION"; then
+        REGION="${REGION:-$DEFAULT_REGION}"
+    fi
+
+    if [ -n "$REGION" ] && ! aws-region-exists "$REGION"; then
+        $QUIET echo "    [$PROFILE] ERROR: region $REGION not found!!"
+        return 1
+    fi
+
+    aws-clean-environment
+
+    # AWS_PROFILE is enough for aws cli and boto
+    export AWS_PROFILE="$PROFILE"
+    $QUIET echo "    [$PROFILE] Successfully exported AWS profile"
+
+    export AWS_ACCESS_KEY="$ACCESS_KEY"
+    export AWS_SECRET_KEY="$SECRET_KEY"
+    $QUIET echo "    [$PROFILE] Successfully exported access/secret keys"
+
+    if [ -n "$DEFAULT_REGION" ]; then
+        export AWS_DEFAULT_REGION="$DEFAULT_REGION"
+        $QUIET echo "    [$PROFILE] Successfully exported default region ($DEFAULT_REGION)"
+    else
+        $QUIET echo "    [$PROFILE] Skipped exporting default region"
+    fi
+
+    if [ -n "$REGION" ]; then
         # ansible ec2 modules
-        AWS_REGION="$2"
-        export AWS_REGION
-
+        export AWS_REGION="$REGION"
+        $QUIET echo "    [$PROFILE] Successfully exported region ($REGION)"
     else
-        echo "    [$AWS_PROFILE] ERROR: AWS region not found!!"
-        echo "    [$AWS_PROFILE] (but your credentials variables were exported)"
-        return 1
+        $QUIET echo "    [$PROFILE] Skipped exporting region"
     fi
-
 }
 
 aws-clean-environment() {
-
     # aws cli and boto
     unset AWS_PROFILE
     unset AWS_ACCESS_KEY_ID
     unset AWS_SECRET_ACCESS_KEY
     unset AWS_SESSION_TOKEN
+    unset AWS_SECURITY_TOKEN
     unset AWS_DEFAULT_REGION
+    unset AWS_REGION
     unset AWS_DEFAULT_PROFILE
     unset AWS_CONFIG_FILE
 
     # ec2 cli
-    #unset AWS_CREDENTIALS_CSV
+    unset AWS_CREDENTIALS_CSV
     unset AWS_ACCESS_KEY
     unset AWS_SECRET_KEY
     unset EC2_URL
-
 }
 
-_aws-file-exists() {
-
-    if [[ ! -f "$1" ]] || [[ -L "$1" ]]; then
-        return 1
-    else
-        return 0
-    fi
-
+aws-file-exists() {
+    local FILE="$1"
+    [ -f "$FILE" ] && ! [ -L "$FILE" ]
 }
 
-_aws-profile-exists() {
-
-    local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
-
-    if _aws-file-exists "$AWS_CREDENTIALS_FILE"; then
-
-        local REGEX="^\[$1\]$"
-        grep --quiet "$REGEX" "$AWS_CREDENTIALS_FILE"
-        return $?
-
-    else
-        return 1
-    fi
+aws-credentials-file() {
+    echo "$HOME/.aws/credentials"
 }
 
-_aws-get-all-profiles() {
-
-    local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
-
-    awk '/\[.+\]/ { gsub(/[\[|\]]/, ""); print };' "$AWS_CREDENTIALS_FILE"
+aws-config-file() {
+    echo "$HOME/.aws/config"
 }
 
-_aws-get-access-and-secret-key() {
+aws-profile-exists() {
+    local CREDENTIALS_FILE="$(aws-credentials-file)"
+    aws-file-exists "$CREDENTIALS_FILE" || return 1
 
-    local ACCESS_KEY
-    local SECRET_KEY
-    local GREP_OUTPUT
-    local LINE
-    local AAKI
-    local ASAK
-
-    local AWS_CREDENTIALS_FILE="$HOME/.aws/credentials"
-
-    local REGEX="^\[$1\]$"
-
-    GREP_OUTPUT=$(grep -A2 "$REGEX" "$AWS_CREDENTIALS_FILE")
-
-    while read -r LINE; do
-        if echo "$LINE" | grep --quiet 'aws_access_key_id'; then
-            AAKI=$(echo "$LINE" | grep 'aws_access_key_id')
-            # The access key is 20 chars long.
-            ACCESS_KEY=$(echo "${AAKI:(-20)}")
-            continue
-        fi
-
-        if echo "$LINE" | grep --quiet 'aws_secret_access_key'; then
-            ASAK=$(echo "$LINE" | grep 'aws_secret_access_key')
-            # The secret key is 40 chars long.
-            SECRET_KEY=$(echo "${ASAK:(-40)}")
-            continue
-        fi
-    done < <(echo "$GREP_OUTPUT")
-
-    echo "$ACCESS_KEY" "$SECRET_KEY"
+    grep --quiet "^\[$1\]$" "$CREDENTIALS_FILE"
 }
 
-_aws-get-ec2-url-for-profile() {
+aws-get-all-profiles() {
+    local CREDENTIALS_FILE="$(aws-credentials-file)"
+    aws-file-exists "$CREDENTIALS_FILE" || return 1
 
-    if [[ -z "$1" ]]; then
-        echo 'No profile informed to search for a region'
-        return 1
-    fi
-
-    local AWS_CONFIG_FILE="$HOME/.aws/config"
-
-    _aws-file-exists "$AWS_CONFIG_FILE"
-
-    if [[ $? -ne 0 ]]; then
-        return 1
-    fi
-
-    local AWS_PROFILE_SECTION
-    local LINE
-    local REGION
-
-    AWS_PROFILE_SECTION=$(awk '/\[.+\]/ {isSection=0}; /\[profile '"$1"'\]/ {isSection=1}; isSection==1 {print}' "$AWS_CONFIG_FILE")
-
-    while read -r LINE; do
-        if echo "$LINE" | grep --quiet 'region'; then
-            REGION=$(echo "$LINE" | grep 'region')
-            AWS_REGION=$(echo "$REGION" | sed 's/.*=//' | sed 's/ //')
-            continue
-        fi
-    done < <(echo "$AWS_PROFILE_SECTION")
-
-    echo "$AWS_REGION"
-
+    sed -n 's/^\[\(.\+\)\]$/\1/p' "$CREDENTIALS_FILE"
 }
 
-_aws-region-exists() {
+aws-profile-get-section() {
+    local PROFILE="$1"
 
-    if [[ -z "$1" ]]; then
-        return 1
-    fi
+    local CREDENTIALS_FILE="$(aws-credentials-file)"
+    aws-file-exists "$CREDENTIALS_FILE" || return 1
 
-    local AWS_REGIONS
-    AWS_REGIONS=$(_aws-get-all-regions)
+    awk '
+        /\[.+\]/ { isSection = 0 };
+        /\['"$PROFILE"'\]/ { isSection = 1 };
+        isSection == 1 { print }
+    ' "$CREDENTIALS_FILE"
 
-    if [[ " $AWS_REGIONS " =~ " $1 " ]]; then
-        return 0
-    else
-        echo "The provided region doesn't exist in our list"
-        return 1
-    fi
+    local CONFIG_FILE="$(aws-config-file)"
 
+    # AWS config file is optional
+    aws-file-exists "$CONFIG_FILE" || return
+
+    awk '
+        /\[.+\]/ { isSection = 0 };
+        /\[profile '"$PROFILE"'\]/ { isSection = 1 };
+        isSection == 1 { print }
+    ' "$CONFIG_FILE"
 }
 
-_aws-get-all-regions() {
-    echo 'ap-northeast-1 ap-southeast-1 ap-southeast-2 eu-central-1 eu-west-1 sa-east-1 us-east-1 us-west-1 us-west-2'
+aws-profile-get-access-key() {
+    local SECTION="$(aws-profile-get-section "$1")"
+    echo "$SECTION" | sed -n 's/^ *aws_access_key_id *= *\([^ ]\+\) *$/\1/p'
 }
 
-_aws-output-profile-info-in-use() {
-
-    echo -e "    You are currently using:"
-    echo -e "    [$AWS_PROFILE] as the default profile for AWS cli, EC2 cli, Boto and Ansible"
-    echo -e "    [$AWS_DEFAULT_REGION] as the default region for AWS cli, Boto and Ansible"
-    echo -e "    [$EC2_URL] as the endpoit for EC2 cli"
-    echo -e "\nTo show help info use aws-profile help, --help or -h"
-    return 0
+aws-profile-get-secret-key() {
+    local SECTION="$(aws-profile-get-section "$1")"
+    echo "$SECTION" | sed -n 's/^ *aws_secret_access_key *= *\([^ ]\+\) *$/\1/p'
 }
 
-_aws-output-help() {
+aws-profile-get-region() {
+    local SECTION="$(aws-profile-get-section "$1")"
+    echo "$SECTION" | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
+}
 
-    echo -e "    Usage:\n"
-    echo -e "        help, --help, -h    Shows this help info"
-    echo -e "        First argument      the profile name to set as default for the current session"
-    echo -e "        Second argument     the AWS region to set as default for the current session"
-    echo -e "                            (optional, if not provided will try to set the region from"
-    echo -e "                            your config file)"
-    echo -e "        Without arguments   shows the current settings"
-    return 0
+aws-region-exists() {
+    [ -n "$1" ] || return 1
+    echo " $(aws-get-all-regions) " | grep --quiet " $1 "
+}
 
+aws-get-all-regions() {
+    echo \
+        us-east-1 \
+        us-east-2 \
+        us-west-1 \
+        us-west-2 \
+        ca-central-1 \
+        eu-central-1 \
+        eu-west-1 \
+        eu-west-2 \
+        eu-west-3 \
+        ap-northeast-1 \
+        ap-northeast-2 \
+        ap-northeast-3 \
+        ap-southeast-1 \
+        ap-southeast-2 \
+        ap-south-1 \
+        sa-east-1
+}
+
+aws-profile-show-info() {
+    cat <<-INFO
+	    You are currently using:
+	
+	    [$AWS_PROFILE] as your AWS profile
+	    [$AWS_REGION] as the selected AWS region
+	    [$AWS_DEFAULT_REGION] as the AWS default region
+	
+	To show help info use aws-profile help, --help or -h
+INFO
+}
+
+aws-output-help() {
+    cat <<-HELP
+	Usage:
+	    -h, --help                  Shows this help info
+	    -q, --quiet                 Quiet mode (disables output)
+	    -p, --profile PROFILE_NAME  The AWS profile name to export
+	    -r, --region REGION_CODE    The AWS region code to export
+	
+	Positional arguments (deprecated):
+	    First argument              Same as --profile
+	    Second argument             Same as --region
+	
+	Without any arguments:
+	                                Shows the current settings
+HELP
 }
