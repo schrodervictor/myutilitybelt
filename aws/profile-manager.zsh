@@ -4,7 +4,7 @@
 # @subpackage aws
 # @author Victor Schröder <schrodervictor@gmail.com>
 
-function aws-profile() {
+aws-profile() {
     local QUIET
     local PROFILE
     local REGION
