@@ -12,7 +12,7 @@ function aws-profile() {
     while [ $# -gt 0 ]; do
         case "$1" in
             -h|--help)
-                __aws-profile-output-help
+                __aws-profile-help
                 return 0
                 ;;
             -q|--quiet)
@@ -93,7 +93,10 @@ function aws-profile() {
     $QUIET echo "    [$PROFILE] Successfully exported AWS profile"
 
     export AWS_ACCESS_KEY="$ACCESS_KEY"
+    export AWS_ACCESS_KEY_ID="$ACCESS_KEY"
+
     export AWS_SECRET_KEY="$SECRET_KEY"
+    export AWS_SECRET_ACCESS_KEY="$SECRET_KEY"
     $QUIET echo "    [$PROFILE] Successfully exported access/secret keys"
 
     if [ -n "$DEFAULT_REGION" ]; then
@@ -145,10 +148,7 @@ __aws-config-file() {
 }
 
 __aws-profile-exists() {
-    local CREDENTIALS_FILE="$(__aws-credentials-file)"
-    __aws-file-exists "$CREDENTIALS_FILE" || return 1
-
-    grep --quiet "^\[$1\]$" "$CREDENTIALS_FILE"
+    __aws-get-all-profiles | grep --quiet "^$1$"
 }
 
 __aws-get-all-profiles() {
@@ -183,18 +183,18 @@ __aws-profile-get-section() {
 }
 
 __aws-profile-get-access-key() {
-    local SECTION="$(__aws-profile-get-section "$1")"
-    echo "$SECTION" | sed -n 's/^ *aws_access_key_id *= *\([^ ]\+\) *$/\1/p'
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *aws_access_key_id *= *\([^ ]\+\) *$/\1/p'
 }
 
 __aws-profile-get-secret-key() {
-    local SECTION="$(__aws-profile-get-section "$1")"
-    echo "$SECTION" | sed -n 's/^ *aws_secret_access_key *= *\([^ ]\+\) *$/\1/p'
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *aws_secret_access_key *= *\([^ ]\+\) *$/\1/p'
 }
 
 __aws-profile-get-region() {
-    local SECTION="$(__aws-profile-get-section "$1")"
-    echo "$SECTION" | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
 }
 
 __aws-region-exists() {
@@ -234,7 +234,7 @@ __aws-profile-show-info() {
 INFO
 }
 
-__aws-output-help() {
+__aws-profile-help() {
     cat <<-HELP
 	Usage:
 	    -h, --help                  Shows this help info
