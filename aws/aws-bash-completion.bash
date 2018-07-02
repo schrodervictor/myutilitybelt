@@ -19,6 +19,14 @@ _aws-profile() {
         OPTIONS+=( -q --quiet )
     fi
 
+    if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -m\| --mfa-code\)'; then
+        OPTIONS+=( -m --mfa-code )
+    fi
+
+    if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -s\| --mfa-serial\)'; then
+        OPTIONS+=( -s --mfa-serial )
+    fi
+
     COMPREPLY=()
     CUR="${COMP_WORDS[COMP_CWORD]}"
     PREV="${COMP_WORDS[COMP_CWORD - 1]}"
@@ -32,6 +40,9 @@ _aws-profile() {
             ;;
         -r|--region)
             COMPREPLY=( $(compgen -W "${REGIONS[*]}" -- "$CUR" ) )
+            ;;
+        -m|--mfa-code|-s|--mfa-serial)
+            COMPREPLY=()
             ;;
         *)
             COMPREPLY=( $(compgen -W "${OPTIONS[*]}" -- "$CUR" ) )

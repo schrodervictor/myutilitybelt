@@ -8,6 +8,8 @@ function aws-profile() {
     local QUIET
     local PROFILE
     local REGION
+    local MFA_CODE
+    local MFA_SERIAL
 
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -25,6 +27,14 @@ function aws-profile() {
                 ;;
             -r|--region)
                 REGION="$2"
+                shift 2
+                ;;
+            -m|--mfa-code)
+                MFA_CODE="$2"
+                shift 2
+                ;;
+            -s|--mfa-serial)
+                MFA_SERIAL="$2"
                 shift 2
                 ;;
 
@@ -75,6 +85,36 @@ function aws-profile() {
 
     $SUCCESS || return 1
 
+    local MFA_JSON
+    local SESSION_TOKEN
+
+    if [ -n "$MFA_CODE" ] && [ -z "$MFA_SERIAL" ]; then
+        MFA_SERIAL="$(__aws-profile-get-mfa-serial "$PROFILE")"
+
+        if [ -z "$MFA_SERIAL" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: could not locate mfa_serial"
+            return 1
+        fi
+    fi
+
+    if [ -n "$MFA_CODE" ] && [ -n "$MFA_SERIAL" ]; then
+        MFA_JSON="$(__aws-profile-get-mfa-json "$PROFILE" "$MFA_SERIAL" "$MFA_CODE")"
+
+        if [ -z "$MFA_JSON" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: MFA authentication failed!"
+            return 1
+        fi
+
+        ACCESS_KEY="$(echo "$MFA_JSON" \
+            | sed -n 's/^ *"AccessKeyId" *: *"\([^"]\+\)".*$/\1/p')"
+
+        SECRET_KEY="$(echo "$MFA_JSON" \
+            | sed -n 's/^ *"SecretAccessKey" *: *"\([^"]\+\)".*$/\1/p')"
+
+        SESSION_TOKEN="$(echo "$MFA_JSON" \
+            | sed -n 's/^ *"SessionToken" *: *"\([^"]\+\)".*$/\1/p')"
+    fi
+
     DEFAULT_REGION="$(__aws-profile-get-region "$PROFILE")"
 
     if __aws-region-exists "$DEFAULT_REGION"; then
@@ -98,6 +138,12 @@ function aws-profile() {
     export AWS_SECRET_KEY="$SECRET_KEY"
     export AWS_SECRET_ACCESS_KEY="$SECRET_KEY"
     $QUIET echo "    [$PROFILE] Successfully exported access/secret keys"
+
+    if [ -n "$SESSION_TOKEN" ]; then
+        export AWS_SECURITY_TOKEN="$SESSION_TOKEN"
+        export AWS_SESSION_TOKEN="$SESSION_TOKEN"
+        $QUIET echo "    [$PROFILE] Successfully exported session token"
+    fi
 
     if [ -n "$DEFAULT_REGION" ]; then
         export AWS_DEFAULT_REGION="$DEFAULT_REGION"
@@ -134,6 +180,25 @@ aws-clean-environment() {
     unset EC2_URL
 }
 
+__aws-profile-get-mfa-json() {
+    command -v aws >/dev/null 2>&1 || return 1
+
+    local PROFILE="$1"
+    local MFA_SERIAL="$2"
+    local MFA_CODE="$3"
+
+    if [ -z "$PROFILE" ] || [ -z "$MFA_SERIAL" ] || [ -z "$MFA_CODE" ]; then
+        return 1
+    fi
+
+    aws-profile --quiet --profile "$PROFILE" || return 1
+
+    aws sts get-session-token \
+        --serial-number "$MFA_SERIAL" \
+        --token-code "$MFA_CODE" \
+        2>/dev/null
+}
+
 __aws-file-exists() {
     local FILE="$1"
     [ -f "$FILE" ] && ! [ -L "$FILE" ]
@@ -155,7 +220,16 @@ __aws-get-all-profiles() {
     local CREDENTIALS_FILE="$(__aws-credentials-file)"
     __aws-file-exists "$CREDENTIALS_FILE" || return 1
 
-    sed -n 's/^\[\(.\+\)\]$/\1/p' "$CREDENTIALS_FILE"
+    local PROFILES="$(sed -n 's/^\[\(.\+\)\]$/\1/p' "$CREDENTIALS_FILE")"
+
+    local CONFIG_PROFILES
+    local CONFIG_FILE="$(__aws-config-file)"
+
+    if __aws-file-exists "$CONFIG_FILE"; then
+        CONFIG_PROFILES="$(sed -n 's/^\[profile \(.\+\)\]$/\1/p' "$CONFIG_FILE")"
+    fi
+
+    echo -e "$PROFILES\n$CONFIG_PROFILES" | sort -u
 }
 
 __aws-profile-get-section() {
@@ -180,6 +254,11 @@ __aws-profile-get-section() {
         /\[profile '"$PROFILE"'\]/ { isSection = 1 };
         isSection == 1 { print }
     ' "$CONFIG_FILE"
+}
+
+__aws-profile-get-mfa-serial() {
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *mfa_serial *= *\([^ ]\+\) *$/\1/p'
 }
 
 __aws-profile-get-access-key() {
@@ -241,6 +320,8 @@ __aws-profile-help() {
 	    -q, --quiet                 Quiet mode (disables output)
 	    -p, --profile PROFILE_NAME  The AWS profile name to export
 	    -r, --region REGION_CODE    The AWS region code to export
+	    -m, --mfa-code CODE         MFA code
+	    -s, --mfa-serial SERIAL     Serial of physical or virtual MFA device
 	
 	Positional arguments (deprecated):
 	    First argument              Same as --profile
