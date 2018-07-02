@@ -161,6 +161,10 @@ function aws-profile() {
     fi
 }
 
+aws-show-environment() {
+    printenv | grep --color=never AWS
+}
+
 aws-clean-environment() {
     # aws cli and boto
     unset AWS_PROFILE
