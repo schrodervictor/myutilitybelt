@@ -12,7 +12,7 @@ function aws-profile() {
     while [ $# -gt 0 ]; do
         case "$1" in
             -h|--help)
-                aws-output-help
+                __aws-profile-output-help
                 return 0
                 ;;
             -q|--quiet)
@@ -49,17 +49,17 @@ function aws-profile() {
 
     if [ -z "$PROFILE" ]; then
         # No profile was provided. Output which profile is being used
-        aws-profile-show-info
+        __aws-profile-show-info
         return 0
     fi
 
-    if ! aws-profile-exists "$PROFILE"; then
+    if ! __aws-profile-exists "$PROFILE"; then
         $QUIET echo "    [$PROFILE] ERROR: AWS profile not found!!"
         return 1
     fi
 
-    local ACCESS_KEY="$(aws-profile-get-access-key "$PROFILE")"
-    local SECRET_KEY="$(aws-profile-get-secret-key "$PROFILE")"
+    local ACCESS_KEY="$(__aws-profile-get-access-key "$PROFILE")"
+    local SECRET_KEY="$(__aws-profile-get-secret-key "$PROFILE")"
 
     local SUCCESS=true
 
@@ -75,13 +75,13 @@ function aws-profile() {
 
     $SUCCESS || return 1
 
-    DEFAULT_REGION="$(aws-profile-get-region "$PROFILE")"
+    DEFAULT_REGION="$(__aws-profile-get-region "$PROFILE")"
 
-    if aws-region-exists "$DEFAULT_REGION"; then
+    if __aws-region-exists "$DEFAULT_REGION"; then
         REGION="${REGION:-$DEFAULT_REGION}"
     fi
 
-    if [ -n "$REGION" ] && ! aws-region-exists "$REGION"; then
+    if [ -n "$REGION" ] && ! __aws-region-exists "$REGION"; then
         $QUIET echo "    [$PROFILE] ERROR: region $REGION not found!!"
         return 1
     fi
@@ -131,38 +131,38 @@ aws-clean-environment() {
     unset EC2_URL
 }
 
-aws-file-exists() {
+__aws-file-exists() {
     local FILE="$1"
     [ -f "$FILE" ] && ! [ -L "$FILE" ]
 }
 
-aws-credentials-file() {
+__aws-credentials-file() {
     echo "$HOME/.aws/credentials"
 }
 
-aws-config-file() {
+__aws-config-file() {
     echo "$HOME/.aws/config"
 }
 
-aws-profile-exists() {
-    local CREDENTIALS_FILE="$(aws-credentials-file)"
-    aws-file-exists "$CREDENTIALS_FILE" || return 1
+__aws-profile-exists() {
+    local CREDENTIALS_FILE="$(__aws-credentials-file)"
+    __aws-file-exists "$CREDENTIALS_FILE" || return 1
 
     grep --quiet "^\[$1\]$" "$CREDENTIALS_FILE"
 }
 
-aws-get-all-profiles() {
-    local CREDENTIALS_FILE="$(aws-credentials-file)"
-    aws-file-exists "$CREDENTIALS_FILE" || return 1
+__aws-get-all-profiles() {
+    local CREDENTIALS_FILE="$(__aws-credentials-file)"
+    __aws-file-exists "$CREDENTIALS_FILE" || return 1
 
     sed -n 's/^\[\(.\+\)\]$/\1/p' "$CREDENTIALS_FILE"
 }
 
-aws-profile-get-section() {
+__aws-profile-get-section() {
     local PROFILE="$1"
 
-    local CREDENTIALS_FILE="$(aws-credentials-file)"
-    aws-file-exists "$CREDENTIALS_FILE" || return 1
+    local CREDENTIALS_FILE="$(__aws-credentials-file)"
+    __aws-file-exists "$CREDENTIALS_FILE" || return 1
 
     awk '
         /\[.+\]/ { isSection = 0 };
@@ -170,10 +170,10 @@ aws-profile-get-section() {
         isSection == 1 { print }
     ' "$CREDENTIALS_FILE"
 
-    local CONFIG_FILE="$(aws-config-file)"
+    local CONFIG_FILE="$(__aws-config-file)"
 
     # AWS config file is optional
-    aws-file-exists "$CONFIG_FILE" || return
+    __aws-file-exists "$CONFIG_FILE" || return
 
     awk '
         /\[.+\]/ { isSection = 0 };
@@ -182,27 +182,27 @@ aws-profile-get-section() {
     ' "$CONFIG_FILE"
 }
 
-aws-profile-get-access-key() {
-    local SECTION="$(aws-profile-get-section "$1")"
+__aws-profile-get-access-key() {
+    local SECTION="$(__aws-profile-get-section "$1")"
     echo "$SECTION" | sed -n 's/^ *aws_access_key_id *= *\([^ ]\+\) *$/\1/p'
 }
 
-aws-profile-get-secret-key() {
-    local SECTION="$(aws-profile-get-section "$1")"
+__aws-profile-get-secret-key() {
+    local SECTION="$(__aws-profile-get-section "$1")"
     echo "$SECTION" | sed -n 's/^ *aws_secret_access_key *= *\([^ ]\+\) *$/\1/p'
 }
 
-aws-profile-get-region() {
-    local SECTION="$(aws-profile-get-section "$1")"
+__aws-profile-get-region() {
+    local SECTION="$(__aws-profile-get-section "$1")"
     echo "$SECTION" | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
 }
 
-aws-region-exists() {
+__aws-region-exists() {
     [ -n "$1" ] || return 1
-    echo " $(aws-get-all-regions) " | grep --quiet " $1 "
+    echo " $(__aws-get-all-regions) " | grep --quiet " $1 "
 }
 
-aws-get-all-regions() {
+__aws-get-all-regions() {
     echo \
         us-east-1 \
         us-east-2 \
@@ -222,7 +222,7 @@ aws-get-all-regions() {
         sa-east-1
 }
 
-aws-profile-show-info() {
+__aws-profile-show-info() {
     cat <<-INFO
 	    You are currently using:
 	
@@ -234,7 +234,7 @@ aws-profile-show-info() {
 INFO
 }
 
-aws-output-help() {
+__aws-output-help() {
     cat <<-HELP
 	Usage:
 	    -h, --help                  Shows this help info

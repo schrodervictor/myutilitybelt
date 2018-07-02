@@ -1,10 +1,10 @@
 _aws-profile() {
-    aws-file-exists "$(aws-credentials-file)" || return 1
+    __aws-file-exists "$(__aws-credentials-file)" || return 1
 
     local PREV CUR PROFILES REGIONS OPTIONS
 
-    PROFILES=( $(aws-get-all-profiles) )
-    REGIONS=( $(aws-get-all-regions) )
+    PROFILES=( $(__aws-get-all-profiles) )
+    REGIONS=( $(__aws-get-all-regions) )
     OPTIONS=( -h --help )
 
     if ! echo "${COMP_WORDS[*]}" | grep --quiet '\( -r\| --region\)'; then
