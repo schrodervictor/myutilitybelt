@@ -11,6 +11,8 @@ aws-profile() {
     local MFA_CODE
     local MFA_SERIAL
 
+    local SUCCESS=true
+
     while [ $# -gt 0 ]; do
         case "$1" in
             -h|--help)
@@ -68,10 +70,29 @@ aws-profile() {
         return 1
     fi
 
+    local ASSUMED_PROFILE
+    local ROLE_ARN
+
+    if __aws-profile-check-assume-role "$PROFILE"; then
+        local ASSUMED_PROFILE="$PROFILE"
+        PROFILE="$(__aws-profile-get-source-profile "$ASSUMED_PROFILE")"
+        local ROLE_ARN="$(__aws-profile-get-role-arn "$ASSUMED_PROFILE")"
+
+        if [ -z "$PROFILE" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: AWS source profile not found!!"
+            SUCCESS=false
+        fi
+
+        if [ -z "$ROLE_ARN" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: role ARN not configured!!"
+            SUCCESS=false
+        fi
+
+        $SUCCESS || return 1
+    fi
+
     local ACCESS_KEY="$(__aws-profile-get-access-key "$PROFILE")"
     local SECRET_KEY="$(__aws-profile-get-secret-key "$PROFILE")"
-
-    local SUCCESS=true
 
     if [ -z "$ACCESS_KEY" ]; then
         $QUIET echo "    [$PROFILE] ERROR: Access key not found!"
@@ -85,11 +106,15 @@ aws-profile() {
 
     $SUCCESS || return 1
 
-    local MFA_JSON
-    local SESSION_TOKEN
+    local JSON=
+    local SESSION_TOKEN=
 
     if [ -n "$MFA_CODE" ] && [ -z "$MFA_SERIAL" ]; then
         MFA_SERIAL="$(__aws-profile-get-mfa-serial "$PROFILE")"
+
+        if [ -z "$MFA_SERIAL" ] && [ -n "$ASSUMED_PROFILE" ]; then
+            MFA_SERIAL="$(__aws-profile-get-mfa-serial "$ASSUMED_PROFILE")"
+        fi
 
         if [ -z "$MFA_SERIAL" ]; then
             $QUIET echo "    [$PROFILE] ERROR: could not locate mfa_serial"
@@ -97,25 +122,46 @@ aws-profile() {
         fi
     fi
 
-    if [ -n "$MFA_CODE" ] && [ -n "$MFA_SERIAL" ]; then
-        MFA_JSON="$(__aws-profile-get-mfa-json "$PROFILE" "$MFA_SERIAL" "$MFA_CODE")"
+    if [ -n "$ASSUMED_PROFILE" ]; then
+        local ASSUME_ARGS=()
+        ASSUME_ARGS+=( "$PROFILE" "$ASSUMED_PROFILE" "$ROLE_ARN" )
+        ASSUME_ARGS+=( "$MFA_SERIAL" "$MFA_CODE" )
 
-        if [ -z "$MFA_JSON" ]; then
-            $QUIET echo "    [$PROFILE] ERROR: MFA authentication failed!"
+        JSON="$(__aws-profile-get-assume-role-json "${ASSUME_ARGS[@]}")"
+
+        if [ -z "$JSON" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: assume role command failed!"
             return 1
         fi
 
-        ACCESS_KEY="$(echo "$MFA_JSON" \
+        unset MFA_CODE MFA_SERIAL
+    fi
+
+    if [ -n "$MFA_CODE" ] && [ -n "$MFA_SERIAL" ]; then
+        JSON="$(__aws-profile-get-mfa-json "$PROFILE" "$MFA_SERIAL" "$MFA_CODE")"
+
+        if [ -z "$JSON" ]; then
+            $QUIET echo "    [$PROFILE] ERROR: MFA authentication failed!"
+            return 1
+        fi
+    fi
+
+    if [ -n "$JSON" ]; then
+        ACCESS_KEY="$(echo "$JSON" \
             | sed -n 's/^ *"AccessKeyId" *: *"\([^"]\+\)".*$/\1/p')"
 
-        SECRET_KEY="$(echo "$MFA_JSON" \
+        SECRET_KEY="$(echo "$JSON" \
             | sed -n 's/^ *"SecretAccessKey" *: *"\([^"]\+\)".*$/\1/p')"
 
-        SESSION_TOKEN="$(echo "$MFA_JSON" \
+        SESSION_TOKEN="$(echo "$JSON" \
             | sed -n 's/^ *"SessionToken" *: *"\([^"]\+\)".*$/\1/p')"
     fi
 
-    DEFAULT_REGION="$(__aws-profile-get-region "$PROFILE")"
+    if [ -n "$ASSUMED_PROFILE" ]; then
+        PROFILE="$ASSUMED_PROFILE"
+    fi
+
+    local DEFAULT_REGION="$(__aws-profile-get-region "$PROFILE")"
 
     if __aws-region-exists "$DEFAULT_REGION"; then
         REGION="${REGION:-$DEFAULT_REGION}"
@@ -203,6 +249,37 @@ __aws-profile-get-mfa-json() {
         2>/dev/null
 }
 
+__aws-profile-get-assume-role-json() {
+    command -v aws >/dev/null 2>&1 || return 1
+
+    local PROFILE="$1"
+    local ASSUMED_PROFILE="$2"
+    local ROLE_ARN="$3"
+    local MFA_SERIAL="$4"
+    local MFA_CODE="$5"
+
+    if \
+        [ -z "$PROFILE" ] \
+        || [ -z "$ASSUMED_PROFILE" ] \
+        || [ -z "$ROLE_ARN" ]
+    then
+        return 1
+    fi
+
+    aws-profile --quiet --profile "$PROFILE" || return 1
+
+    local AWS_CLI_ARGS=()
+    AWS_CLI_ARGS+=( --role-arn "$ROLE_ARN" )
+    AWS_CLI_ARGS+=( --role-session-name "$ASSUMED_PROFILE" )
+
+    if [ -n "$MFA_SERIAL" ] && [ -n "$MFA_CODE" ]; then
+        AWS_CLI_ARGS+=( --serial-number "$MFA_SERIAL" )
+        AWS_CLI_ARGS+=( --token-code "$MFA_CODE" )
+    fi
+
+    aws sts assume-role "${AWS_CLI_ARGS[@]}" 2>/dev/null
+}
+
 __aws-file-exists() {
     local FILE="$1"
     [ -f "$FILE" ] && ! [ -L "$FILE" ]
@@ -218,6 +295,10 @@ __aws-config-file() {
 
 __aws-profile-exists() {
     __aws-get-all-profiles | grep --quiet "^$1$"
+}
+
+__aws-profile-check-assume-role() {
+    __aws-profile-get-section "$1" | grep --quiet 'source_profile'
 }
 
 __aws-get-all-profiles() {
@@ -278,6 +359,16 @@ __aws-profile-get-secret-key() {
 __aws-profile-get-region() {
     __aws-profile-get-section "$1" \
         | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
+}
+
+__aws-profile-get-source-profile() {
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *source_profile *= *\([^ ]\+\) *$/\1/p'
+}
+
+__aws-profile-get-role-arn() {
+    __aws-profile-get-section "$1" \
+        | sed -n 's/^ *role_arn *= *\([^ ]\+\) *$/\1/p'
 }
 
 __aws-region-exists() {
