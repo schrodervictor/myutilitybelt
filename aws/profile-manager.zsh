@@ -358,7 +358,7 @@ __aws-profile-get-secret-key() {
 
 __aws-profile-get-region() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *region *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-source-profile() {
