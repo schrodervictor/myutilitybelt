@@ -17,6 +17,10 @@
     tool = vimdiff
     algorithm = patience
 
+[diff "ansible-vault"]
+
+    textconv = "ansible-vault view"
+
 [difftool]
 
     # This is need to Vimdiff not prompt for saving everytime
