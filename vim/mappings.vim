@@ -55,3 +55,6 @@ function! ConvertTimestampToDate()
 endfunction
 
 nnoremap <leader>d :call ConvertTimestampToDate() <CR>
+
+" folding toggle with space in normal mode
+nnoremap <Space> za
