@@ -22,5 +22,3 @@ source ~/.vim/search.vim
 source ~/.vim/colors.vim
 source ~/.vim/dvorak.vim
 
-"vdebug
-source ~/.vim/vdebug.vim

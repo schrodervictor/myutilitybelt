@@ -20,9 +20,6 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'bling/vim-airline'
 Plugin 'nanotech/jellybeans.vim'
 
-" X-Debug
-Plugin 'joonty/vdebug'
-
 " Elixir
 Plugin 'elixir-editors/vim-elixir'
 
