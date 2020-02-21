@@ -21,6 +21,16 @@ noremap <Right> <nop>
 noremap <Up> <nop>
 noremap <Down> <nop>
 
+" makes editing the command line more similar to Bash
+" the '^[' below are literal Esc chars (Ctrl-V then Esc)
+" this is needed to Alt-b and Alt-f to work in the remap
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+set <M-b>=b
+cnoremap <M-b> <S-Left>
+set <M-f>=f
+cnoremap <M-f> <S-Right>
+
 " Sometimes you just remember something and wnat to add it fast
 " the following command will open this file quickly
 " ev = (e)dit (v)imrc
