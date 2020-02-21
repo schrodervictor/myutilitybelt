@@ -3,7 +3,7 @@ let g:vdebug_options = {
 \   "on_close": 'detach',
 \   "ide_key": '',
 \   "path_maps": {
-\       "/var": "/home/vschroeder/Projects/caseable/hydra/var"
+\       "/app": "/home/vschroeder/Projects/caseable/fenrir"
 \   },
 \   "debug_window_level": 0,
 \   "debug_file_level": 0,
