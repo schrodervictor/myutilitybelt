@@ -43,7 +43,9 @@
 
     # When working with other people, it's a good idea to have this setting
     # to prevent unnecessary conflicts and keep everything in order
-    rebase = true
+    # Rebasing local changes is something completely secure, don't freak out!
+    # The value "merges" have the same meaning as the --rebase-merges flag
+    rebase = merges
 
 [merge]
 
