@@ -12,6 +12,7 @@ source ~/.myutilitybelt/zsh/colors.zsh
 source ~/.myutilitybelt/zsh/completion.zsh
 source ~/.myutilitybelt/zsh/environment.zsh
 source ~/.myutilitybelt/zsh/history.zsh
+source ~/.myutilitybelt/zsh/log.zsh
 source ~/.myutilitybelt/zsh/prompt.zsh
 source ~/.myutilitybelt/zsh/tmux.zsh
 source ~/.myutilitybelt/zsh/vcs.zsh
