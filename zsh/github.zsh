@@ -279,6 +279,74 @@ function github-list-pull-requests {
     done 3< <(echo "$NUMBERS") 4< <(echo "$TITLES")
 }
 
+function github-list-pull-request-comments {
+    github-validate-env || return 1
+    github-validate-dir || return 1
+
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+    local PR_NUMBER="$1"
+
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER/comments"
+
+    local RESULT="$(github-request -e "$ENDPOINT")"
+
+    local PATHS="$(echo "$RESULT" \
+        | grep -o '"path":"[^"]\+"' \
+        | sed -n 's/^"path":"\(.\+\)"$/\1/p')"
+
+    local HUNKS="$(echo "$RESULT" \
+        | grep -o '"diff_hunk":"@@[^@]\+@@' \
+        | sed -n 's/^"diff_hunk":"\(.\+\)$/\1/p')"
+
+    local POSITIONS="$(echo "$RESULT" \
+        | grep -o '"position":[^,]\+,' \
+        | sed -n 's/^"position":\(.\+\),$/\1/p')"
+
+    local DATES="$(echo "$RESULT" \
+        | grep -o '"created_at":"[^"]\+"' \
+        | sed -n 's/^"created_at":"\(.\+\)"$/\1/p')"
+
+    local AUTHORS="$(echo "$RESULT" \
+        | grep -o '"login":"[^"]\+"' \
+        | sed -n 's/^"login":"\(.\+\)"$/\1/p')"
+
+    # Comments normally have tons of escaped chars. We have to take that in
+    # consideration and prevent bash to expand the line breaks, for example
+    local COMMENTS="$(echo "${RESULT//\\/\\\\}" \
+        | grep -o '"body":"\(\\.\|[^"]\)\+"' \
+        | sed -n 's/^"body":"\(.\+\)"$/\1/p')"
+
+    while \
+        read -u 3 -r _PATH \
+        && read -u 4 -r _HUNK \
+        && read -u 5 -r _POSITION \
+        && read -u 6 -r _DATE \
+        && read -u 7 -r _AUTHOR \
+        && read -u 8 -r _COMMENT
+    do
+        # If position is null, this is an outdated comment
+        if [ "$_POSITION" = 'null' ]; then
+            continue
+        fi
+
+        echo "$_PATH"
+        echo "$_HUNK"
+        echo "$_POSITION"
+        echo "$_DATE"
+        echo "$_AUTHOR"
+        echo "${_COMMENT//\\/\\\\}"
+        echo
+    done \
+        3< <(echo "$PATHS") \
+        4< <(echo "$HUNKS") \
+        5< <(echo "$POSITIONS") \
+        6< <(echo "$DATES") \
+        7< <(echo "$AUTHORS") \
+        8< <(echo "${COMMENTS//\\/\\\\}")
+}
+
 function _github-view-pull-request {
     github-validate-dir -q || return 1
 
@@ -313,8 +381,12 @@ function _github-view-pull-request {
     return 0
 }
 
-command -v complete > /dev/null 2>&1 \
-    && complete -F _github-view-pull-request github-view-pull-request
+if command -v complete > /dev/null 2>&1; then
+    complete -F _github-view-pull-request github-view-pull-request
+    complete -F _github-view-pull-request github-list-pull-request-comments
+fi
 
-command -v compdef  > /dev/null 2>&1 \
-    && compdef _github-view-pull-request github-view-pull-request
+if command -v compdef  > /dev/null 2>&1; then
+    compdef _github-view-pull-request github-view-pull-request
+    compdef _github-view-pull-request github-list-pull-request-comments
+fi
