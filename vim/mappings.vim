@@ -31,23 +31,23 @@ cnoremap <M-b> <S-Left>
 set <M-f>=f
 cnoremap <M-f> <S-Right>
 
-" Sometimes you just remember something and wnat to add it fast
+" sometimes you just remember something and want to add it fast
 " the following command will open this file quickly
 " ev = (e)dit (v)imrc
 nnoremap <leader>ev :tabedit $MYVIMRC<cr>
 
-" And here a fast command to source it again
+" and here a fast command to source it again
 " sv = (s)ource (v)imrc
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
-" A better way to cycle between buffers
+" a better way to cycle between buffers
 noremap <leader>n :bnext<cr>
 noremap <leader>t :bprevious<cr>
 
-" Faster way to delete a buffer
+" faster way to delete a buffer
 noremap <leader>bd :bdelete<cr>
 
-" Convertion from timestamp to Date
+" convertion from timestamp to Date
 function! ConvertTimestampToDate()
   execute "normal! viwd"
   let date_string = strftime('%c', @@)

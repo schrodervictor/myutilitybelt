@@ -5,7 +5,6 @@
 # @author Victor Schröder <schrodervictor@gmail.com>
 
 function github-validate-env {
-
     local VALID_ENV=true
 
     if [[ -z "$GITHUB_USERNAME" ]]; then
