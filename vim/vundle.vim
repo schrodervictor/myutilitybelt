@@ -23,6 +23,9 @@ Plugin 'nanotech/jellybeans.vim'
 " X-Debug
 Plugin 'joonty/vdebug'
 
+" Elixir
+Plugin 'elixir-editors/vim-elixir'
+
 call vundle#end()
 
 " Turn the filetype detection ON again
