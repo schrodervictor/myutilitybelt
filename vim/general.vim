@@ -14,39 +14,11 @@ set nocompatible
 set nomodeline
 
 " === BACKUP SETTINGS ===
-" turn backup OFF
-" Normally we would want to have it turned on. See bug and workaround below.
-" OBS: It's a known-bug that backupdir is not supporting
-" the correct double slash filename expansion
-" see: https://code.google.com/p/vim/issues/detail?id=179
-set nobackup
-
+" turn backup ON
+" only works since version 8.1.0251
+set backup
 " set a centralized backup directory
 set backupdir=~/.vim/backup//
-
-" This is the workaround for the backup filename expansion problem.
-autocmd BufWritePre * :call SaveBackups()
-
-function! SaveBackups()
-  if expand('%:p') =~ &backupskip | return | endif
-  if !filereadable(@%) | return | endif
-
-  for l:backupdir in split(&backupdir, ',')
-    :call SaveBackup(l:backupdir)
-  endfor
-endfunction
-
-function! SaveBackup(backupdir)
-  let l:filename = expand('%:p')
-  if a:backupdir =~ '//$'
-    let l:backup = escape(substitute(l:filename, '/', '%', 'g')  . &backupext, '%')
-  else
-    let l:backup = escape(expand('%') . &backupext, '%')
-  endif
-
-  let l:backup_path = a:backupdir . l:backup
-  :silent! execute '!cp ' . resolve(l:filename) . ' ' . l:backup_path
-endfunction
 
 " === SWAP FILES ===
 " turn swap files ON
