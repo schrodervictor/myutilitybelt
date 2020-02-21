@@ -38,6 +38,10 @@ set undofile
 " with the slashes replaced by %
 set undodir=~/.vim/undo//
 
+" === CMD HISTORY ===
+" set the history size to the maximum allowed
+set history=10000
+
 " === TIMEOUT ===
 " The combination of timeout=off and ttimeout=on means that timeouts will
 " be applied only to key codes (<Esc> prefixed keys).
