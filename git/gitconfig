@@ -11,6 +11,8 @@
     # We know the mess it can be with the line CRLF and LF...
     autocrlf = input
 
+    attributesfile = ~/.gitattributes
+
 [diff]
 
     # Vimdiff will be the default tool for diffs
