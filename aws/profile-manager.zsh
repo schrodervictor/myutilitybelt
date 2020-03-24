@@ -53,6 +53,8 @@ aws-profile() {
                     shift
                     continue
                 fi
+
+                shift
                 ;;
         esac
     done
