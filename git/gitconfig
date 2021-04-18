@@ -13,6 +13,8 @@
 
     attributesfile = ~/.gitattributes
 
+    excludesfile = ~/.gitignore_global
+
 [diff]
 
     # Vimdiff will be the default tool for diffs
