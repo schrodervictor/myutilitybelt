@@ -20,5 +20,5 @@ source ~/.vim/search.vim
 
 "visual/fancy stuff
 source ~/.vim/colors.vim
-source ~/.vim/dvorak.vim
+"source ~/.vim/dvorak.vim
 
