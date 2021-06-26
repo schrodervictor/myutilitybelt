@@ -15,6 +15,9 @@
 
     excludesfile = ~/.gitignore_global
 
+[init]
+	defaultBranch = master
+
 [diff]
 
     # Vimdiff will be the default tool for diffs
