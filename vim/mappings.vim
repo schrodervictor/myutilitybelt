@@ -58,3 +58,6 @@ nnoremap <leader>d :call ConvertTimestampToDate() <CR>
 
 " folding toggle with space in normal mode
 nnoremap <Space> za
+
+" breaking line in normal mode
+nnoremap <C-j> i<cr><esc>_
