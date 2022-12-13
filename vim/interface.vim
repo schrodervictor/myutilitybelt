@@ -22,7 +22,7 @@ set number
 
 " Show relative line numbers
 " Very usefull with motions
-set relativenumber
+" set relativenumber
 
 " set list ON to show invisible chars
 set list
