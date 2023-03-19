@@ -2,6 +2,10 @@
 
     path = ~/.myutilitybelt/git/user.inc
 
+[init]
+
+    defaultBranch = master
+
 [core]
 
     # Lets use Vim as our main editor for Git
