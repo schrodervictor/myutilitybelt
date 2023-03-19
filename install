@@ -53,10 +53,6 @@ ln -s $FULL_PATH/git/gitattributes $HOME/.gitattributes
 ln -s $FULL_PATH/terraform/terraformrc $HOME/.terraformrc
 echo "done."
 
-echo -n "Installing Vim plugins..."
-vim -N -u $HOME/.vim/vundle.vim -c ':BundleCleanInstallQuit'
-echo "done."
-
 echo "Collecting user data for private.zsh vars:"
 read -e -p "GPGKEY [$GPGKEY]:" INPUT_GPGKEY
 GPGKEY="${INPUT_GPGKEY:-${GPGKEY}}"
@@ -84,6 +80,11 @@ cat <<EOT > $FULL_PATH/git/user.inc
     name = $GIT_USER_NAME
     email = $GIT_USER_EMAIL
 EOT
+
+echo -n "Installing Vim plugins..."
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+vim -N -u $HOME/.vim/vundle.vim -c ':BundleCleanInstallQuit'
+echo "done."
 
 echo "--- Installation of myutilitybelt complete ---"
 exit 0

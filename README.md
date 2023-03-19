@@ -1,4 +1,4 @@
-# myutilitybelt
+# MyUtilityBelt
 
 Personal settings for the lovely tools that compose my workflow.
 
@@ -6,13 +6,16 @@ Personal settings for the lovely tools that compose my workflow.
 [Dvorak](http://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard).
 (you should try it too!!)
 
+
 ## Dependencies
 
 * [Git](http://git-scm.com/)
 * [Zsh](http://www.zsh.org/)
-* [tmux](http://tmux.sourceforge.net/)
+* [Tmux](http://tmux.sourceforge.net/)
 * [Vim](http://www.vim.org/)
+
 
 ## Installation
 
-    $ git clone --recursive https://github.com/schrodervictor/myutilitybelt.git && ./myutilitybelt/install
+    $ git clone https://github.com/schrodervictor/myutilitybelt.git \
+      && ./myutilitybelt/install

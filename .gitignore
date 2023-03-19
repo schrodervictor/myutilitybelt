@@ -3,8 +3,6 @@ install-backup
 
 # Don't track vim plugins files inside bundle folder
 vim/bundle/*
-# But do track Vundle itself, which is a submodule here
-!vim/bundle/Vundle.vim
 
 # These folders are needed for Vim functionalities but
 # we really don't want to track what is inside them
