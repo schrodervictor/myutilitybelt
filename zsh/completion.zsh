@@ -6,8 +6,11 @@
 
 autoload -U compinit
 compinit -i
+
 autoload -U +X bashcompinit && bashcompinit
 source "$HOME/.myutilitybelt/aws/aws-bash-completion.bash"
+source <(kubectl completion zsh)
+
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*:*:*:*:*' menu select
