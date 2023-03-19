@@ -84,3 +84,6 @@ set path+=**,.modman/**
 " === AUTOCOMMANDS ===
 " I never use modula2 files, but a lot of markdown with .md extension
 autocmd BufRead,BufNewFile *.md set filetype=markdown
+
+" Get rid of the annoying bell on ESC
+set visualbell
