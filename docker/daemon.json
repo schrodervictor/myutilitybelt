@@ -1,0 +1,6 @@
+{
+  "storage-driver": "overlay2",
+  "features": {
+    "buildkit": true
+  }
+}

@@ -25,6 +25,7 @@ FULL_PATH="$(cd "$RELATIVE_PATH" && pwd)"
 
 BACKUP_FOLDER="$FULL_PATH/install-backup/$(date +%Y%m%d%H%M%S)"
 mkdir -p $BACKUP_FOLDER
+mkdir -p $BACKUP_FOLDER/docker
 
 echo -n "Backing up previous configuration files..."
 mv $HOME/.bashrc $BACKUP_FOLDER || true
@@ -38,6 +39,7 @@ mv $HOME/.gitattributes $BACKUP_FOLDER || true
 mv $HOME/.terraformrc $BACKUP_FOLDER || true
 cp $FULL_PATH/zsh/private.zsh $BACKUP_FOLDER || true
 cp $FULL_PATH/git/user.inc $BACKUP_FOLDER || true
+cp /etc/docker/daemon.json $BACKUP_FOLDER/docker || true
 echo "done."
 
 echo -n "Creating the symlinks..."
@@ -51,6 +53,7 @@ ln -s $FULL_PATH/tmux/tmux.conf $HOME/.tmux.conf
 ln -s $FULL_PATH/git/gitconfig $HOME/.gitconfig
 ln -s $FULL_PATH/git/gitattributes $HOME/.gitattributes
 ln -s $FULL_PATH/terraform/terraformrc $HOME/.terraformrc
+ln -s $FULL_PATH/docker/daemon.json /etc/docker/daemon.json
 echo "done."
 
 echo "Collecting user data for private.zsh vars:"
