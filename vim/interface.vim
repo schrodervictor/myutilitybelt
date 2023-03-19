@@ -24,6 +24,9 @@ set number
 " Very usefull with motions
 set relativenumber
 
+" Set scroll offset, to scroll when approaching the top or bottom
+set scrolloff=5
+
 " set list ON to show invisible chars
 set list
 
