@@ -4,6 +4,13 @@
 # @subpackage aws
 # @author Victor Schröder <schrodervictor@gmail.com>
 
+DEBUG=false
+
+debug() {
+    [ "$DEBUG" = 'true' ] || return 0
+    echo "    [DEBUG] $1" >&2
+}
+
 aws-profile() {
     local QUIET
     local PROFILE
@@ -38,6 +45,10 @@ aws-profile() {
             -s|--mfa-serial)
                 MFA_SERIAL="$2"
                 shift 2
+                ;;
+            --debug)
+                DEBUG=true
+                shift
                 ;;
 
             # Backwards compatibility with the old positional args
@@ -129,6 +140,8 @@ aws-profile() {
 
         JSON="$(__aws-profile-get-assume-role-json "${ASSUME_ARGS[@]}")"
 
+        debug "JSON (assumed profile) = $JSON"
+
         if [ -z "$JSON" ]; then
             $QUIET echo "    [$PROFILE] ERROR: assume role command failed!"
             return 1
@@ -139,6 +152,8 @@ aws-profile() {
 
     if [ -n "$MFA_CODE" ] && [ -n "$MFA_SERIAL" ]; then
         JSON="$(__aws-profile-get-mfa-json "$PROFILE" "$MFA_SERIAL" "$MFA_CODE")"
+
+        debug "JSON (main profile) = $JSON"
 
         if [ -z "$JSON" ]; then
             $QUIET echo "    [$PROFILE] ERROR: MFA authentication failed!"
