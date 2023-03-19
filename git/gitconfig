@@ -84,3 +84,7 @@
 
     # And this can revert all assume-unchanged operations
     remember = !git update-index --really-refresh
+
+[url "git@github.com:"]
+
+    insteadOf = https://github.com/
