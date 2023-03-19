@@ -55,6 +55,7 @@ function github-request {
     local METHOD='GET'
     local BASE_URL='https://api.github.com'
     local ACCEPT='application/vnd.github.v3+json'
+    local VERBOSE=false
 
     local ENDPOINT
     local DATA
@@ -81,6 +82,18 @@ function github-request {
                 ACCEPT='application/vnd.github.v3+json'
                 shift
                 ;;
+            --beta)
+                ACCEPT='application/vnd.github.squirrel-girl-preview+json'
+                shift
+                ;;
+            --accept)
+                ACCEPT="$2"
+                shift 2
+                ;;
+            --verbose)
+                VERBOSE=true
+                shift
+                ;;
             *)
                 echo -e "Invalid option: $1\n"
                 return 1
@@ -99,7 +112,12 @@ function github-request {
         CURL_OPTS+=(--data-ascii "$DATA")
     fi
 
-    curl -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT"
+    if [ "$VERBOSE" = true ]; then
+        CURL_OPTS+=(--verbose)
+    fi
+
+    echo curl -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT" >&2
+    curl -v -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT"
 }
 
 function github-create-repo {
@@ -215,12 +233,78 @@ function github-create-pull-request {
     PAYLOAD+=('"head":"'$HEAD'"')
     PAYLOAD+=('"base":"'$BASE'"')
 
-    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+    local JSON="{$(IFS=,; echo "${PAYLOAD[@]}")}"
 
     github-request -m POST -e "$ENDPOINT" -d "$JSON"
 }
 
-function github-view-pull-request {
+function github-create-issue {
+    github-validate-env || return 1
+    github-validate-dir || return 1
+
+    local TITLE
+    local DESCRIPTION
+
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -m|--message)
+          TITLE="$2"
+          shift 2
+          ;;
+        -d|--description)
+          DESCRIPTION="$2"
+          shift 2
+          ;;
+        *)
+          echo -e "Invalid option: $1\n"
+          return 1
+          ;;
+      esac
+    done
+
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/issues"
+
+    local PAYLOAD=()
+    PAYLOAD+=("\"title\":\"$TITLE\"")
+
+    if [ -n "$DESCRIPTION" ]; then
+        PAYLOAD+=("\"body\":\"$DESCRIPTION\"")
+    fi
+
+    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+
+    local result
+    result="$(github-request -m POST -e "$ENDPOINT" -d "$JSON")"
+
+    local issue_id
+    issue_id="$(echo "$result" \
+        | sed -n 's|^{.*"id": *\([[:digit:]]\+\) *\(,.\+\)\?}$|\1|p')"
+
+    local issue_number
+    issue_number="$(echo "$result" \
+        | sed -n 's|^{.*"number": *\([[:digit:]]\+\) *\(,.\+\)\?}$|\1|p')"
+
+    local issue_url
+    issue_url="$(echo "$result" \
+        | sed -n 's|^{.*"html_url" *: *"\([^"]\+/issues/[^"]\+\)" *\(,.\+\)\?}$|\1|p')"
+
+    if [ -z "$issue_id" -o -z "$issue_url" -o -z "$issue_number" ]; then
+        echo 'Failed to create issue on Github'
+        echo 'Returned JSON:'
+        echo "$result"
+        return 1
+    fi
+
+    echo "Successfully created new issue #${issue_number}"
+    echo "id: $issue_id"
+    echo "url: $issue_url"
+}
+
+function github-pull-request-diff {
     github-validate-env || return 1
     github-validate-dir || return 1
 
@@ -243,7 +327,35 @@ function github-view-pull-request {
         return 1
     fi
 
-    echo "$DIFF" | vim -
+    echo -E "$DIFF"
+}
+
+function github-view-pull-request {
+    github-pull-request-diff "$@" \
+    | vim -c "let g:github_pull_request=$PR_NUMBER" -
+}
+
+function github-get-all-diffs {
+    local REPO="$1"
+    local LINE
+    local PR_NUMBERS="$(
+        while IFS="" read -r LINE || [ -n "$LINE" ]; do
+            echo "$LINE" \
+            | grep -o '"number":[^,]\+,' \
+            | sed -n 's/^"number":\(.\+\),$/\1/p'
+        done < "$REPO/pulls"
+    )"
+
+    local N
+    for N in $(echo "$PR_NUMBERS"); do
+        (
+            echo "Entering $REPO"
+            cd "$REPO"
+            echo "Getting diff for pull-request $N"
+            mkdir -p "pull-requests/$N"
+            github-pull-request-diff "$N" > "pull-requests/$N/diff"
+        )
+    done
 }
 
 function github-list-repos {
@@ -251,14 +363,58 @@ function github-list-repos {
     github-request -e 'user/repos'
 }
 
-function github-list-pull-requests {
+function github-get-all-pull-requests {
     github-validate-env || return 1
     github-validate-dir || return 1
 
     local REPO="$(github-current-repo-name)"
     local REPO_OWNER="${REPO%/*}"
     local REPO_NAME="${REPO#*/}"
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls"
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls?state=all&per_page=100"
+    local PAGE=1
+
+    local RESULT
+    while ! [ "$RESULT" = '[]' ]; do
+        if [ "$PAGE" -gt 10 ]; then
+            break
+        fi
+        RESULT="$(github-request -e "${ENDPOINT}&page=$PAGE")"
+        echo -E "$RESULT"
+        ((PAGE++))
+    done
+}
+
+function github-list-pull-requests {
+    github-validate-env || return 1
+    github-validate-dir || return 1
+
+    local STATE="open"
+
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --closed)
+          STATE="closed"
+          shift
+          ;;
+        --all)
+          STATE="all"
+          shift
+          ;;
+        --open)
+          STATE="open"
+          shift
+          ;;
+        *)
+          echo -e "Invalid option: $1\n"
+          return 1
+          ;;
+      esac
+    done
+
+    local REPO="$(github-current-repo-name)"
+    local REPO_OWNER="${REPO%/*}"
+    local REPO_NAME="${REPO#*/}"
+    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls?state=$STATE&per_page=100"
 
     local RESULT="$(github-request -e "$ENDPOINT")"
 
