@@ -19,6 +19,7 @@ Plugin 'gmarik/Vundle.vim'
 "visual/fancy stuff
 Plugin 'bling/vim-airline'
 Plugin 'nanotech/jellybeans.vim'
+Plugin 'leafgarland/typescript-vim'
 
 " Elixir
 Plugin 'elixir-editors/vim-elixir'
