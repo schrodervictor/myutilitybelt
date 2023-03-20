@@ -21,5 +21,6 @@ source ~/.myutilitybelt/zsh/emacs-mode.zsh
 source ~/.myutilitybelt/zsh/nvm.zsh
 source ~/.myutilitybelt/zsh/ansible.zsh
 source ~/.myutilitybelt/zsh/rvm.zsh
+source ~/.myutilitybelt/zsh/mongodb-atlas.zsh
 
 source ~/.myutilitybelt/aws/profile-manager.zsh
