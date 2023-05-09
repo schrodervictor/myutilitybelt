@@ -165,13 +165,13 @@ aws-profile() {
 
     if [ -n "$JSON" ]; then
         ACCESS_KEY="$(echo "$JSON" \
-            | sed -n 's/^ *"AccessKeyId" *: *"\([^"]\+\)".*$/\1/p')"
+            | sed -nE 's/^ *"AccessKeyId" *: *"([^"]+)".*$/\1/p')"
 
         SECRET_KEY="$(echo "$JSON" \
-            | sed -n 's/^ *"SecretAccessKey" *: *"\([^"]\+\)".*$/\1/p')"
+            | sed -nE 's/^ *"SecretAccessKey" *: *"([^"]+)".*$/\1/p')"
 
         SESSION_TOKEN="$(echo "$JSON" \
-            | sed -n 's/^ *"SessionToken" *: *"\([^"]\+\)".*$/\1/p')"
+            | sed -nE 's/^ *"SessionToken" *: *"([^"]+)".*$/\1/p')"
     fi
 
     if [ -n "$ASSUMED_PROFILE" ]; then
@@ -322,13 +322,13 @@ __aws-get-all-profiles() {
     local CREDENTIALS_FILE="$(__aws-credentials-file)"
     __aws-file-exists "$CREDENTIALS_FILE" || return 1
 
-    local PROFILES="$(sed -n 's/^\[\(.\+\)\]$/\1/p' "$CREDENTIALS_FILE")"
+    local PROFILES="$(sed -nE 's/^\[(.+)\]$/\1/p' "$CREDENTIALS_FILE")"
 
     local CONFIG_PROFILES
     local CONFIG_FILE="$(__aws-config-file)"
 
     if __aws-file-exists "$CONFIG_FILE"; then
-        CONFIG_PROFILES="$(sed -n 's/^\[profile \(.\+\)\]$/\1/p' "$CONFIG_FILE")"
+        CONFIG_PROFILES="$(sed -nE 's/^\[profile (.+)\]$/\1/p' "$CONFIG_FILE")"
     fi
 
     echo -e "$PROFILES\n$CONFIG_PROFILES" | sort -u
@@ -360,32 +360,32 @@ __aws-profile-get-section() {
 
 __aws-profile-get-mfa-serial() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *mfa_serial *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *mfa_serial *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-access-key() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *aws_access_key_id *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *aws_access_key_id *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-secret-key() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *aws_secret_access_key *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *aws_secret_access_key *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-region() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *region *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *region *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-source-profile() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *source_profile *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *source_profile *= *([^ ]+) *$/\1/p'
 }
 
 __aws-profile-get-role-arn() {
     __aws-profile-get-section "$1" \
-        | sed -n 's/^ *role_arn *= *\([^ ]\+\) *$/\1/p'
+        | sed -nE 's/^ *role_arn *= *([^ ]+) *$/\1/p'
 }
 
 __aws-region-exists() {
@@ -416,11 +416,11 @@ __aws-get-all-regions() {
 __aws-profile-show-info() {
     cat <<-INFO
 	    You are currently using:
-	
+
 	    [$AWS_PROFILE] as your AWS profile
 	    [$AWS_REGION] as the selected AWS region
 	    [$AWS_DEFAULT_REGION] as the AWS default region
-	
+
 	To show help info use aws-profile help, --help or -h
 INFO
 }
@@ -434,11 +434,11 @@ __aws-profile-help() {
 	    -r, --region REGION_CODE    The AWS region code to export
 	    -m, --mfa-code CODE         MFA code
 	    -s, --mfa-serial SERIAL     Serial of physical or virtual MFA device
-	
+
 	Positional arguments (deprecated):
 	    First argument              Same as --profile
 	    Second argument             Same as --region
-	
+
 	Without any arguments:
 	                                Shows the current settings
 HELP
