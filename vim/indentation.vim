@@ -34,6 +34,8 @@ set cindent
 
 " Specific overrides per filetype
 autocmd Filetype javascript call SetIndentation(2)
+autocmd Filetype typescript call SetIndentation(2)
+autocmd Filetype elixir call SetIndentation(2)
 autocmd Filetype vim call SetIndentation(2)
 
 function SetIndentation(spaces)
