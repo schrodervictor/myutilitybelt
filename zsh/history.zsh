@@ -4,8 +4,8 @@
 # @subpackage zsh
 # @author Victor Schröder <schrodervictor@gmail.com>
 
-HISTSIZE=100000
-SAVEHIST=100000
+HISTSIZE=10000000
+SAVEHIST=10000000
 HISTFILE=~/.zsh_history
 
 # Tells ZSH to not overwrite the previous history entries,
@@ -26,3 +26,6 @@ setopt HIST_REDUCE_BLANKS
 
 # Do not show repeated history entries when doing a search
 setopt HIST_FIND_NO_DUPS
+
+# Show result of history manipulation before executing it
+setopt HIST_VERIFY
