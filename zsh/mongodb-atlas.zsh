@@ -72,6 +72,7 @@ _atlas_whitelist() {
     local ip
     local comment
     local project
+    local delete_after
 
     while [ $# -gt 0 ]; do
         case "$1" in
