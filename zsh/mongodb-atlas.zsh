@@ -5,7 +5,12 @@ debug() {
 }
 
 get_my_ip() {
-    curl -s ip.me
+    local response
+
+    #curl -s ip.me
+    response="$(curl --silent https://ip4only.me/api/)"
+    debug "$response"
+    echo "$response" | cut --delimiter=',' --fields=2
 }
 
 is_function() {
