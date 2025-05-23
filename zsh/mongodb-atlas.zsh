@@ -1,5 +1,7 @@
 debug() {
-    [ "$DEBUG" = true ] && echo "DEBUG: $@" >&2
+    if [ "$DEBUG" = true ]; then
+        echo "[DEBUG] $@" >&2
+    fi
 }
 
 get_my_ip() {
@@ -85,7 +87,7 @@ _atlas_whitelist() {
                 shift 2
                 ;;
             *)
-                echo -e "Invalid option: $1\n"
+                printf "%s\n" "Invalid option: $1"
                 return 1
                 ;;
         esac
@@ -165,8 +167,8 @@ _atlas_curl() {
     output_file="$(mktemp)"
     http_code="$(curl --output "$output_file" --write-out '%{http_code}' "$@")"
 
-    debug "[curl] status code: $http_code"
-    debug "[curl] raw response: $(cat "$output_file")"
+    debug "curl status code: $http_code"
+    debug "curl raw response: $(cat "$output_file")"
 
     cat "$output_file"
     rm "$output_file"
@@ -217,8 +219,8 @@ _atlas_request() {
         curl_opts+=(--data-ascii "$data")
     fi
 
-    debug "[_atlas_request] curl URL: $base_url/$endpoint"
-    debug "[_atlas_request] curl args: ${curl_opts[@]}"
+    debug "_atlas_request curl URL: $base_url/$endpoint"
+    debug "_atlas_request curl args: ${curl_opts[@]}"
 
     local response
     local cmd_return

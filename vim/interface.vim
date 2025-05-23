@@ -37,11 +37,12 @@ set listchars=tab:\|_,trail:·,extends:#,nbsp:·,eol:¬
 set wildmenu
 
 " Best combination for wildmode (autocompletion)
-" longest:full = will complete to the longest common substring
-"                in the matches. The :full will also start the
-"                wildmenu but not highlight anything.
-" full = we need to specify full as the second mode to allow
-"        cycling between the matches with successive tabs
+" longest:full
+"   will complete to the longest common substring in the matches.
+"   The :full will also start the wildmenu but not highlight anything.
+" full
+"   we need to specify full as the second mode to allow cycling between
+"   the matches with successive tabs
 set wildmode=longest:full,full
 
 " Define some file patterns to ignore for autocompletion
