@@ -24,3 +24,13 @@ source ~/.myutilitybelt/zsh/rvm.zsh
 source ~/.myutilitybelt/zsh/mongodb-atlas.zsh
 
 source ~/.myutilitybelt/aws/profile-manager.zsh
+
+GCP_SDK_HOME='/opt/google/gcp-sdk/google-cloud-sdk-450.0.0'
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f "$GCP_SDK_HOME/path.zsh.inc" ]; then
+    . "$GCP_SDK_HOME/path.zsh.inc"
+fi
+# The next line enables shell command completion for gcloud.
+if [ -f "$GCP_SDK_HOME/completion.zsh.inc" ]; then
+    . "$GCP_SDK_HOME/completion.zsh.inc"
+fi
