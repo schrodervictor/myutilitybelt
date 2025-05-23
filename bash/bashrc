@@ -107,12 +107,14 @@ if ! shopt -oq posix; then
   fi
 fi
 
+MUB_HOME=/home/vschroeder/Projects/schrodervictor/myutilitybelt
+
 # Don't worry, it's bash compatible
-source "$HOME/.myutilitybelt/aws/profile-manager.zsh"
+source "$MUB_HOME/aws/profile-manager.zsh"
 
 # Source our customized bash completion for AWS
-if [ -f ~/.myutilitybelt/aws/aws-bash-completion.bash ]; then
-    . ~/.myutilitybelt/aws/aws-bash-completion.bash
+if [ -f "$MUB_HOME/aws/aws-bash-completion.bash" ]; then
+    . "$MUB_HOME/aws/aws-bash-completion.bash"
 fi
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting

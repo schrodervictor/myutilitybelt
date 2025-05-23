@@ -1,4 +1,4 @@
-MUB_LOG_DIR="$HOME/Logs"
+MUB_LOG_DIR="$HOME/Logs/zsh"
 
 if ! [ -d "$MUB_LOG_DIR" ]; then
     mkdir -p "$MUB_LOG_DIR"
