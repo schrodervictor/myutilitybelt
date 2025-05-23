@@ -187,13 +187,23 @@ _atlas_request() {
     _atlas_validate_env || return 1
 
     local method='GET'
-    local base_url='https://cloud.mongodb.com/api/atlas/v1.0'
+    local api_version='v1.0'
+    local base_url="https://cloud.mongodb.com/api/atlas"
+    local accept="application/json"
 
     local endpoint
     local data
 
     while [ $# -gt 0 ]; do
         case "$1" in
+            --api-version)
+                api_version="$2"
+                shift 2
+                ;;
+            --accept)
+                accept="$2"
+                shift 2
+                ;;
             --endpoint)
                 endpoint="$2"
                 shift 2
@@ -219,19 +229,19 @@ _atlas_request() {
     curl_opts+=(--user "$MONGODB_ATLAS_PUBLIC_KEY:$MONGODB_ATLAS_PRIVATE_KEY")
     curl_opts+=(--digest)
     curl_opts+=(--header 'Content-Type: application/json')
-    curl_opts+=(--header 'Accept: application/json')
+    curl_opts+=(--header "Accept: $accept")
 
     if [ -n "$data" ]; then
         curl_opts+=(--data-ascii "$data")
     fi
 
-    debug "_atlas_request curl URL: $base_url/$endpoint"
+    debug "_atlas_request curl URL: $base_url/$api_version/$endpoint"
     debug "_atlas_request curl args: ${curl_opts[@]}"
 
     local response
     local cmd_return
 
-    response="$(_atlas_curl --silent "${curl_opts[@]}" "$base_url/$endpoint")"
+    response="$(_atlas_curl --silent "${curl_opts[@]}" "$base_url/$api_version/$endpoint")"
     cmd_return="$?"
 
     echo "$response"
