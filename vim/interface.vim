@@ -54,7 +54,7 @@ set cursorcolumn
 
 " Put a column marker at the given position to
 " advice when we are writing too much
-set colorcolumn=78
+set colorcolumn=72,78
 
 " When a (), [] or {} is inserted, briefly jumps to the correspondent
 " pair, when it is visible on the screen
