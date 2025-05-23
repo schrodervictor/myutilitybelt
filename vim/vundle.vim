@@ -20,6 +20,8 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'bling/vim-airline'
 Plugin 'nanotech/jellybeans.vim'
 Plugin 'leafgarland/typescript-vim'
+Plugin 'hashivim/vim-terraform'
+Plugin 'vimwiki/vimwiki'
 
 " Elixir
 Plugin 'elixir-editors/vim-elixir'
