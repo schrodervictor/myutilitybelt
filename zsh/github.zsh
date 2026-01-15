@@ -360,7 +360,19 @@ function github-get-all-diffs {
 
 function github-list-repos {
     github-validate-env || return 1
-    github-request -e 'user/repos'
+
+    local endpoint="user/repos?per_page=100"
+    local page=1
+
+    local result
+    while ! [ "$result" = '[]' ]; do
+        if [ "$page" -gt 10 ]; then
+            break
+        fi
+        result="$(github-request -e "${endpoint}&page=$page")"
+        echo -E "$result"
+        ((page++))
+    done
 }
 
 function github-get-all-pull-requests {
