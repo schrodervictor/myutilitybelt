@@ -5,44 +5,44 @@
 # @author Victor Schröder <schrodervictor@gmail.com>
 
 function github-validate-env {
-    local VALID_ENV=true
+    local valid_env=true
 
     if [[ -z "$GITHUB_USERNAME" ]]; then
         echo 'ERROR: Your GitHub username is not correctly configured'
         echo 'Make sure you have GITHUB_USERNAME in your environment'
-        unset VALID_ENV
+        unset valid_env
     fi
 
     if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
         echo 'ERROR: Your GitHub access token is not correctly configured'
         echo 'Make sure you have GITHUB_ACCESS_TOKEN in your environment'
-        unset VALID_ENV
+        unset valid_env
     fi
 
-    if [[ -z "$VALID_ENV" ]]; then
+    if [[ -z "$valid_env" ]]; then
         return 1
     fi
 }
 
 function github-validate-dir {
-    local QUIET=
+    local quiet=
     if [[ "$1" = "-q" ]]; then
-        QUIET=true
+        quiet=true
     fi
 
     git rev-parse > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        $QUIET echo 'Current directory is not in a git repository'
+        $quiet echo 'Current directory is not in a git repository'
         return 1
     fi
 
-    local GIT_DIR="$(git rev-parse --git-dir)/config"
+    local git_dir="$(git rev-parse --git-dir)/config"
 
-    cat "$GIT_DIR" | grep -q 'url.*=.*git@github\.com:.*\.git'
+    cat "$git_dir" | grep -q 'url.*=.*git@github\.com:.*\.git'
 
     if [ $? -ne 0 ]; then
-        $QUIET echo 'Current repository does not have Github as a remote'
+        $quiet echo 'Current repository does not have Github as a remote'
         return 1
     fi
 
@@ -52,46 +52,46 @@ function github-validate-dir {
 function github-request {
     github-validate-env || return 1
 
-    local METHOD='GET'
-    local BASE_URL='https://api.github.com'
-    local ACCEPT='application/vnd.github.v3+json'
-    local VERBOSE=false
+    local method='GET'
+    local base_url='https://api.github.com'
+    local accept='application/vnd.github.v3+json'
+    local verbose=false
 
-    local ENDPOINT
-    local DATA
+    local endpoint
+    local data
 
     while [ $# -gt 0 ]; do
         case "$1" in
             -e|--endpoint)
-                ENDPOINT="$2"
+                endpoint="$2"
                 shift 2
                 ;;
             -m|--method)
-                METHOD="$2"
+                method="$2"
                 shift 2
                 ;;
             -d|--data)
-                DATA="$2"
+                data="$2"
                 shift 2
                 ;;
             --diff)
-                ACCEPT='application/vnd.github.v3.diff'
+                accept='application/vnd.github.v3.diff'
                 shift
                 ;;
             --json)
-                ACCEPT='application/vnd.github.v3+json'
+                accept='application/vnd.github.v3+json'
                 shift
                 ;;
             --beta)
-                ACCEPT='application/vnd.github.squirrel-girl-preview+json'
+                accept='application/vnd.github.squirrel-girl-preview+json'
                 shift
                 ;;
             --accept)
-                ACCEPT="$2"
+                accept="$2"
                 shift 2
                 ;;
             --verbose)
-                VERBOSE=true
+                verbose=true
                 shift
                 ;;
             *)
@@ -101,107 +101,108 @@ function github-request {
         esac
     done
 
-    local CURL_OPTS=()
+    local curl_opts=()
 
-    CURL_OPTS+=(-X "$METHOD")
-    CURL_OPTS+=(-H "Accept: $ACCEPT")
-    CURL_OPTS+=(-H "Authorization: token $GITHUB_ACCESS_TOKEN")
-    CURL_OPTS+=(-H "User-Agent: $GITHUB_USERNAME")
+    curl_opts+=(--request "$method")
+    curl_opts+=(--header "Accept: $accept")
+    curl_opts+=(--header "User-Agent: $GITHUB_USERNAME")
+    curl_opts+=(--header "Authorization: Bearer $GITHUB_ACCESS_TOKEN")
+    curl_opts+=(--header "X-GitHub-Api-Version: 2022-11-28")
 
-    if [ -n "$DATA" ]; then
-        CURL_OPTS+=(--data-ascii "$DATA")
+    if [ -n "$data" ]; then
+        curl_opts+=(--data-ascii "$data")
     fi
 
-    if [ "$VERBOSE" = true ]; then
-        CURL_OPTS+=(--verbose)
+    if [ "$verbose" = true ]; then
+        curl_opts+=(--verbose)
     fi
 
-    echo curl -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT" >&2
-    curl -v -s "${CURL_OPTS[@]}" "$BASE_URL/$ENDPOINT"
+    echo curl -s "${curl_opts[@]}" "$base_url/$endpoint" >&2
+    curl -v -s "${curl_opts[@]}" "$base_url/$endpoint"
 }
 
 function github-create-repo {
     github-validate-env || return 1
 
-    local ENDPOINT="user/repos"
+    local endpoint="user/repos"
 
-    local REPO_OWNER
+    local repo_owner
     echo -n "Owner of the repository [$GITHUB_USERNAME]: "
-    read REPO_OWNER
+    read repo_owner
 
-    REPO_OWNER="${REPO_OWNER:-$GITHUB_USERNAME}"
+    repo_owner="${repo_owner:-$GITHUB_USERNAME}"
 
-    if [[ "$GITHUB_USERNAME" != "$REPO_OWNER" ]]; then
-        ENDPOINT="orgs/$REPO_OWNER/repos"
+    if [[ "$GITHUB_USERNAME" != "$repo_owner" ]]; then
+        endpoint="orgs/$repo_owner/repos"
     fi
 
-    local REPO_PRIVATE
+    local repo_private
     echo -n "Private? (Y/n): "
-    read REPO_PRIVATE
+    read repo_private
 
-    REPO_PRIVATE="${REPO_PRIVATE:-y}"
+    repo_private="${repo_private:-y}"
 
-    if [[ ! " y n Y N " =~ " $REPO_PRIVATE " ]]; then
+    if [[ ! " y n Y N " =~ " $repo_private " ]]; then
         echo "Invalid option"
         return 1
     fi
 
-    local REPO_NAME
+    local repo_name
     echo -n "Enter the repository name: "
-    read REPO_NAME
+    read repo_name
 
-    if [[ -z "$REPO_NAME" ]]; then
+    if [[ -z "$repo_name" ]]; then
         echo 'You have to give the repo a name. Try again...'
         return 1
     fi
 
-    local REPO_DESCRIPTION
+    local repo_description
     echo -n "Enter the repository description: "
-    read REPO_DESCRIPTION
+    read repo_description
 
-    local PAYLOAD=()
+    local payload=()
 
-    PAYLOAD+=('"name":"'$REPO_NAME'"')
-    PAYLOAD+=('"description":"'$REPO_DESCRIPTION'"')
+    payload+=('"name":"'$repo_name'"')
+    payload+=('"description":"'$repo_description'"')
 
-    if [[ " y Y " =~ " ${REPO_PRIVATE} " ]]; then
-        PAYLOAD+=('"private":true')
+    if [[ " y Y " =~ " ${repo_private} " ]]; then
+        payload+=('"private":true')
     fi
 
-    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+    local json="{$(IFS=,; echo "${payload[*]}")}"
 
-    github-request -m POST -e "$ENDPOINT" -d "$JSON"
+    github-request -m POST -e "$endpoint" -d "$json"
 }
 
 function github-current-repo-name {
     github-validate-dir || return 1
 
-    local GIT_DIR="$(git rev-parse --git-dir)"
-    local PATTERN='^.*url.*=.*git@github.com:\(.\+\).git$'
-    local REPO_NAME="$(cat "$GIT_DIR/config" | sed -n "s/$PATTERN/\1/p")"
+    local git_dir="$(git rev-parse --git-dir)"
+    local pattern='^.*url.*=.*git@github.com:\(.\+\).git$'
+    local repo_name="$(cat "$git_dir/config" | sed -n "s/$pattern/\1/p")"
 
-    if [ -z "$REPO_NAME" ]; then
+    if [ -z "$repo_name" ]; then
         return 1
     fi
 
-    echo "$REPO_NAME"
+    echo "$repo_name"
 }
 
 function github-create-pull-request {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local TITLE
-    local DEST
+    local title
+    local base
 
     while [ $# -gt 0 ]; do
       case "$1" in
         -m|--message)
-          TITLE="$2"
+          title="$2"
           shift 2
           ;;
         -b|--base)
-          BASE="$2"
+          base="$2"
           shift 2
           ;;
         *)
@@ -211,48 +212,48 @@ function github-create-pull-request {
       esac
     done
 
-    local HEAD="$(git rev-parse --abbrev-ref HEAD)"
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
+    local head="$(git rev-parse --abbrev-ref HEAD)"
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
 
-    BASE="${BASE:-master}"
-    TITLE="${TITLE:-"$HEAD into $BASE"}"
+    base="${base:-master}"
+    title="${title:-"$head into $base"}"
 
-    if [[ $HEAD = $BASE ]]; then
+    if [[ $head = $BASE ]]; then
         echo 'HEAD and merge base must be different.'
-        echo "[$HEAD] given for both."
+        echo "[$head] given for both."
         return 1
     fi
 
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls"
+    local endpoint="repos/$repo_owner/$repo_name/pulls"
 
-    local PAYLOAD=()
+    local payload=()
 
-    PAYLOAD+=('"title":"'$TITLE'"')
-    PAYLOAD+=('"head":"'$HEAD'"')
-    PAYLOAD+=('"base":"'$BASE'"')
+    payload+=('"title":"'$title'"')
+    payload+=('"head":"'$head'"')
+    payload+=('"base":"'$base'"')
 
-    local JSON="{$(IFS=,; echo "${PAYLOAD[@]}")}"
+    local json="{$(IFS=,; echo "${payload[@]}")}"
 
-    github-request -m POST -e "$ENDPOINT" -d "$JSON"
+    github-request -m POST -e "$endpoint" -d "$json"
 }
 
 function github-create-issue {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local TITLE
-    local DESCRIPTION
+    local title
+    local description
 
     while [ $# -gt 0 ]; do
       case "$1" in
         -m|--message)
-          TITLE="$2"
+          title="$2"
           shift 2
           ;;
         -d|--description)
-          DESCRIPTION="$2"
+          description="$2"
           shift 2
           ;;
         *)
@@ -262,23 +263,23 @@ function github-create-issue {
       esac
     done
 
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
 
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/issues"
+    local endpoint="repos/$repo_owner/$repo_name/issues"
 
-    local PAYLOAD=()
-    PAYLOAD+=("\"title\":\"$TITLE\"")
+    local payload=()
+    payload+=("\"title\":\"$title\"")
 
-    if [ -n "$DESCRIPTION" ]; then
-        PAYLOAD+=("\"body\":\"$DESCRIPTION\"")
+    if [ -n "$description" ]; then
+        payload+=("\"body\":\"$description\"")
     fi
 
-    local JSON="{$(IFS=,; echo "${PAYLOAD[*]}")}"
+    local json="{$(IFS=,; echo "${payload[*]}")}"
 
     local result
-    result="$(github-request -m POST -e "$ENDPOINT" -d "$JSON")"
+    result="$(github-request -m POST -e "$endpoint" -d "$json")"
 
     local issue_id
     issue_id="$(echo "$result" \
@@ -308,52 +309,52 @@ function github-pull-request-diff {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
-    local PR_NUMBER="$1"
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
+    local pr_number="$1"
 
-    if [ -z "$PR_NUMBER" ]; then
+    if [ -z "$pr_number" ]; then
         echo 'Please provide a valid pull request number'
         return 1
     fi
 
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER"
+    local endpoint="repos/$repo_owner/$repo_name/pulls/$pr_number"
 
-    local DIFF="$(github-request -e "$ENDPOINT" --diff)"
+    local diff="$(github-request -e "$endpoint" --diff)"
 
-    if [ -z "$DIFF" ]; then
-        echo "Couldn't find any diff for the pull request $PR_NUMBER"
+    if [ -z "$diff" ]; then
+        echo "Couldn't find any diff for the pull request $pr_number"
         return 1
     fi
 
-    echo -E "$DIFF"
+    echo -E "$diff"
 }
 
 function github-view-pull-request {
     github-pull-request-diff "$@" \
-    | vim -c "let g:github_pull_request=$PR_NUMBER" -
+    | vim -c "let g:github_pull_request=$pr_number" -
 }
 
 function github-get-all-diffs {
-    local REPO="$1"
-    local LINE
-    local PR_NUMBERS="$(
-        while IFS="" read -r LINE || [ -n "$LINE" ]; do
-            echo "$LINE" \
+    local repo="$1"
+    local line
+    local pr_numbers="$(
+        while IFS="" read -r line || [ -n "$line" ]; do
+            echo "$line" \
             | grep -o '"number":[^,]\+,' \
             | sed -n 's/^"number":\(.\+\),$/\1/p'
-        done < "$REPO/pulls"
+        done < "$repo/pulls"
     )"
 
-    local N
-    for N in $(echo "$PR_NUMBERS"); do
+    local n
+    for n in $(echo "$pr_numbers"); do
         (
-            echo "Entering $REPO"
-            cd "$REPO"
-            echo "Getting diff for pull-request $N"
-            mkdir -p "pull-requests/$N"
-            github-pull-request-diff "$N" > "pull-requests/$N/diff"
+            echo "Entering $repo"
+            cd "$repo"
+            echo "Getting diff for pull-request $n"
+            mkdir -p "pull-requests/$n"
+            github-pull-request-diff "$n" > "pull-requests/$n/diff"
         )
     done
 }
@@ -379,20 +380,20 @@ function github-get-all-pull-requests {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls?state=all&per_page=100"
-    local PAGE=1
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
+    local endpoint="repos/$repo_owner/$repo_name/pulls?state=all&per_page=100"
+    local page=1
 
-    local RESULT
-    while ! [ "$RESULT" = '[]' ]; do
-        if [ "$PAGE" -gt 10 ]; then
+    local result
+    while ! [ "$result" = '[]' ]; do
+        if [ "$page" -gt 10 ]; then
             break
         fi
-        RESULT="$(github-request -e "${ENDPOINT}&page=$PAGE")"
-        echo -E "$RESULT"
-        ((PAGE++))
+        result="$(github-request -e "${endpoint}&page=$page")"
+        echo -E "$result"
+        ((page++))
     done
 }
 
@@ -400,20 +401,20 @@ function github-list-pull-requests {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local STATE="open"
+    local state="open"
 
     while [ $# -gt 0 ]; do
       case "$1" in
         --closed)
-          STATE="closed"
+          state="closed"
           shift
           ;;
         --all)
-          STATE="all"
+          state="all"
           shift
           ;;
         --open)
-          STATE="open"
+          state="open"
           shift
           ;;
         *)
@@ -423,66 +424,66 @@ function github-list-pull-requests {
       esac
     done
 
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls?state=$STATE&per_page=100"
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
+    local endpoint="repos/$repo_owner/$repo_name/pulls?state=$state&per_page=100"
 
-    local RESULT="$(github-request -e "$ENDPOINT")"
+    local result="$(github-request -e "$endpoint")"
 
-    local NUMBERS="$(echo "$RESULT" \
+    local numbers="$(echo "$result" \
         | grep -o '"number":[^,]\+,' \
         | sed -n 's/^"number":\(.\+\),$/\1/p')"
 
-    local TITLES="$(echo "$RESULT" \
+    local titles="$(echo "$result" \
         | grep -o '"title":"[^"]\+"' \
         | sed -n 's/^"title":"\(.\+\)"$/\1/p')"
 
 
-    local NUMBER
-    local TITLE
+    local number
+    local title
 
-    while read -u 3 -r NUMBER && read -u 4 -r TITLE; do
-        echo "$NUMBER: $TITLE"
-    done 3< <(echo "$NUMBERS") 4< <(echo "$TITLES")
+    while read -u 3 -r number && read -u 4 -r title; do
+        echo "$number: $title"
+    done 3< <(echo "$numbers") 4< <(echo "$titles")
 }
 
 function github-list-pull-request-comments {
     github-validate-env || return 1
     github-validate-dir || return 1
 
-    local REPO="$(github-current-repo-name)"
-    local REPO_OWNER="${REPO%/*}"
-    local REPO_NAME="${REPO#*/}"
-    local PR_NUMBER="$1"
+    local repo="$(github-current-repo-name)"
+    local repo_owner="${repo%/*}"
+    local repo_name="${repo#*/}"
+    local pr_number="$1"
 
-    local ENDPOINT="repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER/comments"
+    local endpoint="repos/$repo_owner/$repo_name/pulls/$pr_number/comments"
 
-    local RESULT="$(github-request -e "$ENDPOINT")"
+    local result="$(github-request -e "$endpoint")"
 
-    local PATHS="$(echo "$RESULT" \
+    local paths="$(echo "$result" \
         | grep -o '"path":"[^"]\+"' \
         | sed -n 's/^"path":"\(.\+\)"$/\1/p')"
 
-    local HUNKS="$(echo "$RESULT" \
+    local hunks="$(echo "$result" \
         | grep -o '"diff_hunk":"@@[^@]\+@@' \
         | sed -n 's/^"diff_hunk":"\(.\+\)$/\1/p')"
 
-    local POSITIONS="$(echo "$RESULT" \
+    local positions="$(echo "$result" \
         | grep -o '"position":[^,]\+,' \
         | sed -n 's/^"position":\(.\+\),$/\1/p')"
 
-    local DATES="$(echo "$RESULT" \
+    local dates="$(echo "$result" \
         | grep -o '"created_at":"[^"]\+"' \
         | sed -n 's/^"created_at":"\(.\+\)"$/\1/p')"
 
-    local AUTHORS="$(echo "$RESULT" \
+    local authors="$(echo "$result" \
         | grep -o '"login":"[^"]\+"' \
         | sed -n 's/^"login":"\(.\+\)"$/\1/p')"
 
     # Comments normally have tons of escaped chars. We have to take that in
     # consideration and prevent bash to expand the line breaks, for example
-    local COMMENTS="$(echo "${RESULT//\\/\\\\}" \
+    local comments="$(echo "${result//\\/\\\\}" \
         | grep -o '"body":"\(\\.\|[^"]\)\+"' \
         | sed -n 's/^"body":"\(.\+\)"$/\1/p')"
 
@@ -507,40 +508,40 @@ function github-list-pull-request-comments {
         echo "${_COMMENT//\\/\\\\}"
         echo
     done \
-        3< <(echo "$PATHS") \
-        4< <(echo "$HUNKS") \
-        5< <(echo "$POSITIONS") \
-        6< <(echo "$DATES") \
-        7< <(echo "$AUTHORS") \
-        8< <(echo "${COMMENTS//\\/\\\\}")
+        3< <(echo "$paths") \
+        4< <(echo "$hunks") \
+        5< <(echo "$positions") \
+        6< <(echo "$dates") \
+        7< <(echo "$authors") \
+        8< <(echo "${comments//\\/\\\\}")
 }
 
 function _github-view-pull-request {
     github-validate-dir -q || return 1
 
-    local PR_LIST="$(github-list-pull-requests)"
+    local pr_list="$(github-list-pull-requests)"
 
     # Zsh completion
     if command -v _describe > /dev/null 2>&1; then
-        local -a OPTIONS
-        local OPTION
+        local -a options
+        local option
 
-        while read -r OPTION; do
-            OPTIONS+=( "$OPTION" )
-        done < <(echo "$PR_LIST")
+        while read -r option; do
+            options+=( "$option" )
+        done < <(echo "$pr_list")
 
-        _describe 'github-view-pull-request' OPTIONS
+        _describe 'github-view-pull-request' options
 
         return 0
     fi
 
     # Bash completion
-    local CUR="${COMP_WORDS[COMP_CWORD]}"
-    local ORIG_IFS="$IFS"
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local orig_ifs="$IFS"
     local IFS=$'\n'
 
-    COMPREPLY=( $(compgen -W "$PR_LIST" -- "$CUR") )
-    IFS="$ORIG_IFS"
+    COMPREPLY=( $(compgen -W "$pr_list" -- "$CUR") )
+    IFS="$orig_ifs"
 
     if [[ ${#COMPREPLY[*]} -eq 1 ]]; then
         COMPREPLY=( ${COMPREPLY[0]%%: *} )
