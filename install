@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEPENDENCIES_OK=true
+
 declare -a MISSING
 echo -n "Checking dependencies..."
 command -v git >/dev/null 2>&1 \
@@ -25,7 +26,6 @@ FULL_PATH="$(cd "$RELATIVE_PATH" && pwd)"
 
 BACKUP_FOLDER="$FULL_PATH/install-backup/$(date +%Y%m%d%H%M%S)"
 mkdir -p $BACKUP_FOLDER
-mkdir -p $BACKUP_FOLDER/docker
 
 echo -n "Backing up previous configuration files..."
 mv $HOME/.bashrc $BACKUP_FOLDER || true
@@ -39,7 +39,6 @@ mv $HOME/.gitattributes $BACKUP_FOLDER || true
 mv $HOME/.terraformrc $BACKUP_FOLDER || true
 cp $FULL_PATH/zsh/private.zsh $BACKUP_FOLDER || true
 cp $FULL_PATH/git/user.inc $BACKUP_FOLDER || true
-cp /etc/docker/daemon.json $BACKUP_FOLDER/docker || true
 echo "done."
 
 echo -n "Creating the symlinks..."
@@ -53,36 +52,7 @@ ln -s $FULL_PATH/tmux/tmux.conf $HOME/.tmux.conf
 ln -s $FULL_PATH/git/gitconfig $HOME/.gitconfig
 ln -s $FULL_PATH/git/gitattributes $HOME/.gitattributes
 ln -s $FULL_PATH/terraform/terraformrc $HOME/.terraformrc
-ln -s $FULL_PATH/docker/daemon.json /etc/docker/daemon.json
 echo "done."
-
-echo "Collecting user data for private.zsh vars:"
-read -e -p "GPGKEY [$GPGKEY]:" INPUT_GPGKEY
-GPGKEY="${INPUT_GPGKEY:-${GPGKEY}}"
-read -e -p "GITHUB_USERNAME [$GITHUB_USERNAME]:" INPUT_GITHUB_USERNAME
-GITHUB_USERNAME="${INPUT_GITHUB_USERNAME:-${GITHUB_USERNAME}}"
-read -e -p "GITHUB_ACCESS_TOKEN [$GITHUB_ACCESS_TOKEN]:" INPUT_GITHUB_ACCESS_TOKEN
-GITHUB_ACCESS_TOKEN="${INPUT_GITHUB_ACCESS_TOKEN:-${GITHUB_ACCESS_TOKEN}}"
-
-cat <<EOT > $FULL_PATH/zsh/private.zsh
-export GPGKEY=$GPGKEY
-export GITHUB_USERNAME=$GITHUB_USERNAME
-export GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
-EOT
-
-echo "Collecting user data for git config"
-GIT_USER_NAME=$(git config user.name)
-read -e -p "Git user.name [$GIT_USER_NAME]:" INPUT_GIT_USER_NAME
-GIT_USER_NAME="${INPUT_GIT_USER_NAME:-${GIT_USER_NAME}}"
-GIT_USER_EMAIL=$(git config user.email)
-read -e -p "Git user.email [$GIT_USER_EMAIL]:" INPUT_GIT_USER_EMAIL
-GIT_USER_EMAIL="${INPUT_GIT_USER_EMAIL:-${GIT_USER_EMAIL}}"
-
-cat <<EOT > $FULL_PATH/git/user.inc
-[user]
-    name = $GIT_USER_NAME
-    email = $GIT_USER_EMAIL
-EOT
 
 echo -n "Installing Vim plugins..."
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
